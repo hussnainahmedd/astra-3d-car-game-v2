@@ -118,7 +118,7 @@ func _draw_hud() -> void:
 		_text("01 / COLLECTION" if pickup else "02 / DELIVERY", Vector2(50, 102), 11, MINT if pickup else AMBER)
 		_text(game.district.places[missions.target_index()].name, Vector2(50, 124), 21)
 		_text(str(missions.job.cargo), Vector2(50, 155), 13, MUTED)
-		var distance = missions.distance_to_target()
+		var distance = missions.route_distance if missions.route_distance > 0 else missions.distance_to_target()
 		_text("%d m" % int(distance), Vector2(50, 187), 23, AMBER)
 		_text("BASE $%d  +  UP TO $%d BONUS" % [int(missions.job.base), missions.maximum_bonus(missions.job)], Vector2(134, 197), 10, MUTED)
 		var cargo = "CARGO %d%%" % int(missions.job.cargo_condition) if not pickup else "LOAD %d KG" % int(missions.job.weight)
@@ -212,6 +212,7 @@ func clear_menu() -> void:
 		menu.queue_free()
 	menu = Control.new()
 	menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	menu.scale = Vector2.ONE
 	root.add_child(menu)
 	last_button = null
 
@@ -221,10 +222,15 @@ func hide_menu() -> void:
 		menu.hide()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
-func _panel(at: Vector2, size: Vector2, color: Color = INK) -> Panel:
+func _panel(_at: Vector2, size: Vector2, color: Color = INK) -> Panel:
 	var panel = Panel.new()
-	panel.position = at
 	panel.size = size
+	# Menus are authored at the 1280x720 design size. Scale the complete panel
+	# rather than clipping its buttons on the supported 960x540 VM resolution.
+	var fit = minf(1.0, minf((root.size.x - 24.0) / size.x, (root.size.y - 24.0) / size.y))
+	fit = maxf(0.5, fit)
+	panel.scale = Vector2.ONE * fit
+	panel.position = (root.size - size * fit) / 2.0
 	var style = StyleBoxFlat.new()
 	style.bg_color = color
 	style.set_corner_radius_all(9)
@@ -280,6 +286,10 @@ func _backdrop() -> void:
 func show_main() -> void:
 	clear_menu()
 	screen = "main"
+	# The main menu uses a taller editorial layout than the in-game panels.
+	# Keep its hierarchy intact while fitting it to smaller supported windows.
+	var menu_fit = maxf(0.5, minf(1.0, minf(root.size.x / 1152.0, root.size.y / 720.0)))
+	menu.scale = Vector2.ONE * menu_fit
 	var background = ColorRect.new()
 	background.color = Color(0.035, 0.10, 0.125, 0.94)
 	background.set_anchors_and_offsets_preset(Control.PRESET_LEFT_WIDE)
@@ -405,7 +415,8 @@ func show_map() -> void:
 	_label(panel, CourierCareer.rank_name(progress.completed), Vector2(649, 146), Vector2(350, 32), 23)
 	var goal = _label(panel, CourierCareer.next_goal(progress.completed), Vector2(649, 185), Vector2(350, 49), 14, MUTED)
 	goal.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_label(panel, "%d deliveries  /  $%d lifetime earnings\n%.2f km driven  /  $%d available" % [progress.completed, progress.earnings, progress.total_distance / 1000, progress.money], Vector2(649, 240), Vector2(350, 60), 14, PAPER)
+	var delivery_word = "delivery" if progress.completed == 1 else "deliveries"
+	_label(panel, "%d %s  /  $%d lifetime earnings\n%.2f km driven  /  $%d available" % [progress.completed, delivery_word, progress.earnings, progress.total_distance / 1000, progress.money], Vector2(649, 240), Vector2(350, 60), 14, PAPER)
 	var target = _label(panel, "ROUTE: %s\n%d m by road\n%s" % [game.missions.navigation_name(), int(game.missions.route_distance), game.missions.navigation_hint()], Vector2(649, 325), Vector2(350, 90), 14, AMBER)
 	target.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_button(panel, "Route to Coast Service", Vector2(649, 437), Vector2(350, 44), game.navigate_to_service, true)

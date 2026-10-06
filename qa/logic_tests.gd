@@ -162,14 +162,14 @@ func test_routes_and_offers() -> void:
 			var from: Vector3 = district.places[source].position
 			var to: Vector3 = district.places[destination].position
 			var route = district.road_route(from, to)
-			legal = legal and route.size() >= 3 and route[0] == from and route[route.size() - 1] == to
+			legal = legal and route.size() >= 4 and route[0] == from and route[route.size() - 1] == to
 			for i in range(2, route.size() - 1):
 				var a = route[i - 1]
 				var b = route[i]
 				if a.distance_to(b) > 0.1:
-					legal = legal and ((is_equal_approx(a.x, b.x) and a.x in HarborDistrict.ROAD_X) or (is_equal_approx(a.z, b.z) and a.z in HarborDistrict.ROAD_Z))
+					legal = legal and _is_road_leg(a, b)
 			count += 1
-	check("All business-to-business routes stay on the road graph", legal and count == 30, "%d directed routes" % count)
+	check("All business-to-business routes stay on the road graph", legal and count == 30, "%d directed routes with driveway attachments" % count)
 	var valid_offers = true
 	for source in district.places.size():
 		vehicle.position = district.places[source].position
@@ -188,7 +188,7 @@ func test_routes_and_offers() -> void:
 	vehicle.position = HarborDistrict.SPAWN
 	missions.progress.completed = 0
 	missions.make_offers()
-	check("First contract and its existing pay are preserved", missions.offers[0].destination == 3 and missions.offers[0].base == 186)
+	check("First contract uses the corrected road distance", missions.offers[0].destination == 3 and missions.offers[0].base == 231, "destination %d, base $%d, route %d m" % [missions.offers[0].destination, missions.offers[0].base, missions.offers[0].distance])
 	check("New couriers receive standard contracts", missions.offers.all(func(offer): return offer.kind == "standard"))
 	missions.progress.completed = 3
 	missions.make_offers()
@@ -285,6 +285,9 @@ func _pickup_is_safe() -> bool:
 	var before: float = missions.job.cargo_condition
 	missions._on_impact(8)
 	return missions.job.cargo_condition == before
+
+func _is_road_leg(a: Vector3, b: Vector3) -> bool:
+	return (is_equal_approx(a.x, b.x) and a.x in HarborDistrict.ROAD_X) or (is_equal_approx(a.z, b.z) and a.z in HarborDistrict.ROAD_Z)
 
 func test_resources() -> void:
 	systems.progress = store()

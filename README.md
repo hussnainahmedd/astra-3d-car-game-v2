@@ -70,7 +70,8 @@ asset downloads are needed to build the game itself.
    offer outbound jobs, so you can keep working without returning to the depot.
 
 Jobs do not fail because you take too long. Careful, on-time driving earns up
-to $75 extra. The first workshop contract pays $186 base plus bonuses.
+to $75 extra. The first workshop contract currently pays $231 base plus bonuses
+for its corrected 411 m road route.
 Career ranks unlock fragile and priority work; priority bonuses can total $105.
 Milestone rewards add another one-time payment at 3, 8 and 15 deliveries.
 
@@ -167,7 +168,7 @@ VM Low** and **28 FPS on Balanced**. The complete rendered test, which includes
 night, collisions, screen captures and view changes, was slower; expect roughly
 **20–30 FPS on this VM**, with occasional shader-compilation/view-transition dips.
 These are measurements of this VM, not a guarantee for other systems.
-The expanded 2026-10-05 native visual integration run averaged **24.9 FPS**;
+The final 2026-10-06 native visual integration rerun averaged **27.3 FPS**;
 see `docs/TESTING.md` for the current measurements and coverage.
 
 | Quality | 3D resolution relative to window | Shadows / AA |

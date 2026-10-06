@@ -423,15 +423,33 @@ func nearest_place(pos: Vector3) -> int:
 	return best
 
 func road_route(from: Vector3, to: Vector3) -> PackedVector3Array:
-	# Tiny grid graph with virtual driveway attachment. Manhattan routing is sufficient here.
+	# Attach each driveway to the nearest road intersection before traversing the
+	# grid. Keeping the off-road driveway legs explicit prevents navigation from
+	# silently drawing a shortcut through a block when an endpoint is not itself
+	# on a road centerline.
 	var start = _road_projection(from)
 	var end = _road_projection(to)
+	var result = PackedVector3Array()
+	_append_route_point(result, from)
+	_append_route_point(result, start)
+	for point in _grid_route(_nearest_intersection(start), _nearest_intersection(end)):
+		_append_route_point(result, point)
+	_append_route_point(result, end)
+	_append_route_point(result, to)
+	return result
+
+func _grid_route(from: Vector3, to: Vector3) -> Array[Vector3]:
 	var nodes: Array[Vector3] = []
 	for x in ROAD_X:
 		for z in ROAD_Z:
 			nodes.append(Vector3(x, 0, z))
-	nodes.append(start)
-	nodes.append(end)
+	var start_index = 0
+	var end_index = 0
+	for i in nodes.size():
+		if nodes[i].distance_to(from) < nodes[start_index].distance_to(from):
+			start_index = i
+		if nodes[i].distance_to(to) < nodes[end_index].distance_to(to):
+			end_index = i
 	var distances: Array[float] = []
 	var previous: Array[int] = []
 	var visited: Array[bool] = []
@@ -439,7 +457,7 @@ func road_route(from: Vector3, to: Vector3) -> PackedVector3Array:
 		distances.append(INF)
 		previous.append(-1)
 		visited.append(false)
-	distances[9] = 0
+	distances[start_index] = 0
 	for step in nodes.size():
 		var current = -1
 		for i in nodes.size():
@@ -451,21 +469,35 @@ func road_route(from: Vector3, to: Vector3) -> PackedVector3Array:
 		for j in nodes.size():
 			if visited[j]:
 				continue
-			var same_street_x = absf(nodes[current].x - nodes[j].x) < 0.1 and nodes[current].x in ROAD_X
-			var same_street_z = absf(nodes[current].z - nodes[j].z) < 0.1 and nodes[current].z in ROAD_Z
-			if same_street_x or same_street_z or nodes[current].distance_to(nodes[j]) < 0.01:
+			var same_street_x = is_equal_approx(nodes[current].x, nodes[j].x)
+			var same_street_z = is_equal_approx(nodes[current].z, nodes[j].z)
+			if same_street_x or same_street_z:
 				var cost = distances[current] + nodes[current].distance_to(nodes[j])
 				if cost < distances[j]:
 					distances[j] = cost
 					previous[j] = current
-	var result = PackedVector3Array([to])
-	var cursor = 10
+	var result: Array[Vector3] = []
+	var cursor = end_index
 	while cursor != -1:
-		result.append(nodes[cursor])
+		result.push_front(nodes[cursor])
 		cursor = previous[cursor]
-	result.append(from)
-	result.reverse()
 	return result
+
+func _nearest_intersection(pos: Vector3) -> Vector3:
+	var best = Vector3(ROAD_X[0], 0, ROAD_Z[0])
+	var distance = INF
+	for x in ROAD_X:
+		for z in ROAD_Z:
+			var candidate = Vector3(x, 0, z)
+			var candidate_distance = candidate.distance_to(pos)
+			if candidate_distance < distance:
+				distance = candidate_distance
+				best = candidate
+	return best
+
+func _append_route_point(route: PackedVector3Array, point: Vector3) -> void:
+	if route.is_empty() or route[route.size() - 1].distance_to(point) > 0.01:
+		route.append(point)
 
 func _road_projection(pos: Vector3) -> Vector3:
 	var result = Vector3.ZERO

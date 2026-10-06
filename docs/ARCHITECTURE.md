@@ -39,7 +39,7 @@ vehicle, traffic and world clock. Losing focus pauses normal gameplay.
 | `scripts/vehicle/vehicle_controller.gd` | Actual rigid-body forces, suspension, tires, payload mass |
 | `scripts/vehicle/chase_camera.gd` | Three camera modes, wall avoidance, orbit and invert-Y |
 | `scripts/vehicle/vehicle_systems.gd` | Fuel, condition, upgrade effects and service prices |
-| `scripts/world/district.gd` | Procedural environment, lighting, places and road-graph routing |
+| `scripts/world/district.gd` | Procedural environment, lighting, places and driveway-attached road-graph routing |
 | `scripts/world/traffic.gd` | Five persistent cars, lane loops, following and signal stops |
 | `scripts/gameplay/delivery_manager.gd` | Offers, collection/delivery, cargo condition, payment, service detours |
 | `scripts/gameplay/career.gd` | Rank thresholds, milestone awards and purchase rules |
@@ -122,7 +122,7 @@ Release have been produced; this source backup is for active development.
 On this Ubuntu machine, from any working directory:
 
 ```bash
-"/home/ubuntu/Desktop/3d Game/builds/phase1-linux/Harborline"
+./builds/phase1-linux/Harborline
 ```
 
 Keep `Harborline` and `Harborline.pck` together when copying the folder to another
@@ -132,7 +132,7 @@ needed for this native game.
 To run the source project with the existing local engine:
 
 ```bash
-"/home/ubuntu/Desktop/3d Game/run.sh"
+./run.sh
 ```
 
 On Windows, source can be opened with Godot **4.3 stable** and run with F5 (project)

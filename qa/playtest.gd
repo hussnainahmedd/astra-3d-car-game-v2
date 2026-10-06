@@ -108,6 +108,10 @@ func run() -> void:
 	await frames(42)
 	Input.action_release("steer_left")
 	check("Tyre steering changes heading", absf(angle_difference(yaw, game.vehicle.rotation.y)) > 0.08, "yaw delta %.3f" % angle_difference(yaw, game.vehicle.rotation.y))
+	# Let the steering spring return toward center before measuring straight-line
+	# braking. This avoids treating residual cornering slip as braking failure on
+	# a VM frame hitch while still exercising the normal input path.
+	await frames(30)
 	Input.action_press("brake")
 	await frames(90)
 	Input.action_release("brake")

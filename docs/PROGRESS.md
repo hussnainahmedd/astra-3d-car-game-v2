@@ -38,6 +38,10 @@
   startup from outside the project, and test the excluded-QA flag guard.
 - [x] Back up this current development source in the dedicated Astra 3D Car Game V2
   GitHub repository for continued work; no final release or installer was created.
+- [x] Correct virtual driveway route attachments so navigation and distance-based pay
+  stay on the road graph; extend QA to assert all internal road legs.
+- [x] Fit menu panels to the supported small window size and smooth camera placement
+  between physics frames without replacing the existing presentation.
 
 ## Outstanding work / next-session TODOs
 

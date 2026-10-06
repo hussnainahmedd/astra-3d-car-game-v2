@@ -1,6 +1,6 @@
 # Verification
 
-## Current continuation — 2026-10-05, v0.2.0
+## Current continuation — 2026-10-06, v0.2.0
 
 Tested with the existing Godot 4.3 stable engine on Ubuntu 20.04 x64 / VMware.
 
@@ -38,7 +38,8 @@ results separately.
 - Full/fuel-only/repair-only quotes, emergency fuel, empty-tank thrust inhibition,
   condition power reduction and odometer double-count prevention.
 - All **30 directed business-to-business road routes** and rotating offers from
-  all six origins. These validate route logic, not 30 automated driving journeys.
+  all six origins, including explicit road legs between virtual driveway
+  attachments. These validate route logic, not 30 automated driving journeys.
 - Actual four-wheel parking and driving out of **all six business bays and Coast
   Service**, carrying 220 kg. Repositioning sets up these isolated bay fixtures;
   each exit itself is physically driven.
@@ -57,15 +58,17 @@ VMware SVGA3D**, with the Compatibility renderer. Current screenshots include
 the seven original menu/driving/night views plus `08-district-map.png` and
 `09-workshop.png`; HUD, dispatch, map, workshop and settings were inspected.
 
-The expanded rendered run sampled **24.9 FPS average**, **36.1 ms median frame**
-and **70.7 ms 95th-percentile frame**, with a 960 × 540 window and default
-Balanced quality. It includes more fixtures and UI transitions than the historical
-run below, so it is not a controlled before/after performance benchmark.
+The final 2026-10-06 rendered integration rerun sampled **27.3 FPS average**,
+**35.2 ms median frame** and **50.0 ms 95th-percentile frame**, with a 960 × 540
+window and default Balanced quality. It reported 144 draw calls and 413 objects
+at the end.
+This is a VM measurement, not a controlled before/after benchmark.
 Frames of 0.5 seconds or more are excluded from those samples as before.
 
 The physical delivery took about **39.0 seconds**, arrived **2.9 m** from the bay
-center and paid **$261**. Traffic's stopped-player fixture settled at **0 m/s**
-with a **7.9 m center-to-center gap**. All seven loaded bay exits passed.
+center and paid **$306** ($231 base plus $75 bonuses). Traffic's stopped-player
+fixture settled at **0 m/s** with a **7.9 m center-to-center gap**. All seven loaded
+bay exits passed.
 
 No script errors, renderer initialization failures or shutdown leaks were reported.
 Ubuntu's older `libxkbcommon` printed two optional-symbol lookup messages on stderr
@@ -97,8 +100,8 @@ source project as its runtime path, or a separately launched engine/server.
 Reproduction commands (the sandbox flag protects personal progress/settings):
 
 ```bash
-"/home/ubuntu/Desktop/3d Game/builds/phase1-linux/Harborline" --headless --quit-after 120 -- --sandbox --quickstart
-"/home/ubuntu/Desktop/3d Game/builds/phase1-linux/Harborline" --quit-after 90 -- --sandbox --quickstart
+./builds/phase1-linux/Harborline --headless --quit-after 120 -- --sandbox --quickstart
+./builds/phase1-linux/Harborline --quit-after 90 -- --sandbox --quickstart
 ```
 
 Both exited 0. The packaged `--qa` flag was also checked: it reported that the
