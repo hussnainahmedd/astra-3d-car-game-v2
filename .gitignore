@@ -1,0 +1,46 @@
+# Godot editor/import caches and generated metadata
+.godot/
+*.import
+
+# Local engine downloads and generated desktop bundles
+.tools/
+builds/
+
+# Generated QA output
+qa/screenshots/
+qa/latest_*.json
+qa/environment_status.json
+
+# Logs, temporary files and local caches
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.cache/
+
+# Dependency caches (this project currently has no Node dependency tree)
+node_modules/
+.npm/
+
+# IDE and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+auth.json
+credentials.json
+credentials*.json
+session.json
+cookies.json
+*.pem
+*.key
+*.p12
+*.pfx
