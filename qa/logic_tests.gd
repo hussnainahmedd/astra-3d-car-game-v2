@@ -46,6 +46,7 @@ func run() -> void:
 	check("Input installation is idempotent", InputMap.action_get_events("accelerate").size() == before)
 	check("Map and workshop have keyboard actions", InputMap.has_action("district_map") and InputMap.has_action("workshop"))
 	check("Desktop renderer selects OpenGL Compatibility", ProjectSettings.get_setting("rendering/renderer/rendering_method") == "gl_compatibility")
+	check("Product rename preserves the existing save directory", OS.get_user_data_dir().replace("\\", "/").ends_with("godot/app_userdata/Harborline Dispatch"))
 	check("Linux and Windows export presets exist", FileAccess.file_exists("res://export_presets.cfg"))
 	test_persistence()
 	test_career()

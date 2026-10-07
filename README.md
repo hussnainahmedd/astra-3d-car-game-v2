@@ -1,45 +1,49 @@
 # Astra 3D Car Game V2
 
-**WORK IN PROGRESS / ACTIVE DEVELOPMENT**
+**v0.1.0 — initial desktop test/prerelease**
 
-This repository is the dedicated development repository for the second Astra 3D
-car-game project. The running game is currently named **Harborline Dispatch** in
-`project.godot` and is at version **0.2.0**. It is a native, offline 3D driving
-and delivery game for desktop; this upload is a source-code backup during active
-development, not a finished game or final release.
-
-Version 0.2 is a playable Ubuntu development preview: drive a delivery van around a
-compact harbor district, take contracts, collect cargo, deliver it, and earn money.
+A native, offline 3D driving and delivery game: drive a delivery van around the
+Harborline district, take contracts, collect cargo, deliver it, and earn money.
 The art direction is deliberately stylized and understated, with original
 procedural assets. The handling uses a weighted physical vehicle; this is not a
 photorealistic or full-scale commercial truck simulator.
 
-**Current architecture:** Godot 4.3 / GDScript / native OpenGL Compatibility.
-This project does not contain Three.js, npm, Vite or a localhost
-game server. [Architecture and desktop delivery](docs/ARCHITECTURE.md) documents
-the real Windows/Linux standalone path and the earlier VMware WebGL2 limitation.
-[Continuation status](docs/PROGRESS.md) records completed and remaining work.
+**Engine:** official Godot **4.3 stable**, exact build
+`4.3.stable.official.77dcf97d8`; GDScript and native OpenGL Compatibility.
+The standalone packages include matching official **4.3.stable release templates**.
+Players need no editor, source code, development tools, account, or Internet connection.
 
-## Play now
+## Download and install
 
-### Existing local Ubuntu development bundle
+Get desktop builds from [GitHub Releases](https://github.com/hussnainahmedd/astra-3d-car-game-v2/releases).
+This is the dedicated **V2** repository. Release binaries are excluded from normal
+Git history. `SHA256SUMS.txt` accompanies the published packages.
 
-The generated bundle is intentionally excluded from Git. If it already exists
-in this working directory, it can be launched with:
+### Windows x64
+
+- **Installer:** download `Astra-3D-Car-Game-V2-Windows-x64-Setup.exe` and run it.
+  Installation is per-user, with a Start Menu entry, optional desktop shortcut,
+  and normal uninstall support. Progress is stored separately from installation.
+- **Portable:** extract `Astra-3D-Car-Game-V2-Windows-x64.zip` completely, then
+  double-click **`Astra-3D-Car-Game-V2.exe`** inside the extracted folder.
+  Keep the adjacent **`Astra-3D-Car-Game-V2.pck`** and included notices together.
+
+### Linux x64
+
+Download `Astra-3D-Car-Game-V2-Linux-x64.tar.gz` and extract it:
 
 ```bash
-./builds/phase1-linux/Harborline
+tar -xzf Astra-3D-Car-Game-V2-Linux-x64.tar.gz
+./Astra-3D-Car-Game-V2-Linux-x64/Astra-3D-Car-Game-V2.x86_64
 ```
 
-Or use **Harborline Dispatch** on the Ubuntu desktop.
+The archive preserves executable permissions. If an extraction tool removes them,
+use `chmod +x Astra-3D-Car-Game-V2.x86_64` inside the extracted folder.
+Keep the executable and PCK together. No root installation or local server is required.
+Normal system graphics/audio drivers and **OpenGL 3.3** support are required.
+Linux verification uses Ubuntu 20.04 x64; other distributions have not been certified.
 
-Keep `Harborline` and `Harborline.pck` together. The entire
-`builds/phase1-linux/` folder can be moved elsewhere. Playing this bundle does
-not require the source project, a separately installed engine, OmniRush, a web
-browser, an account, or an Internet connection. Normal Linux graphics/audio
-drivers and OpenGL 3.3 support are required.
-
-### Source/development version
+### Develop from source
 
 ```bash
 ./run.sh
@@ -53,8 +57,8 @@ project with the native Godot editor:
 ```
 
 If recreating the development environment, run `./tools/install_engine.sh` first.
-This needs `curl` and `unzip`. No root access, .NET, Node.js, Python packages, or
-asset downloads are needed to build the game itself.
+Source launch needs `curl` and `unzip` for bootstrap. Release packaging also uses
+Python 3's standard library; no Python packages, .NET or Node.js are needed.
 
 ## Your first shift
 
@@ -197,7 +201,10 @@ assets/                      Original icon and water shader
 qa/                          Physics/UI integration tests and visual probes
 docs/                        Playing guide and verification notes
 third_party/godot/           Engine and bundled-library license notices
-tools/                       Engine bootstrap and development bundle creation
+tools/                       Engine bootstrap, native exports, packaging/validation
+packaging/windows.iss        Per-user Windows installer and shortcuts
+.github/workflows/           Windows export/installer build on windows-latest
+builds/releases/             Generated release assets (excluded from Git)
 builds/phase1-linux/          Playable, self-contained Ubuntu development bundle
 .tools/                      Local engine executable (development only)
 ```
@@ -217,6 +224,8 @@ On Linux:
     logs/            engine logs
 ```
 
+The legacy **Harborline Dispatch** folder is deliberately preserved so renaming
+the product does not discard existing development saves or settings.
 On Windows the equivalent folder is under
 `%APPDATA%/Godot/app_userdata/Harborline Dispatch/`.
 
@@ -236,9 +245,11 @@ restore the last good shift automatically.
 ## Verification
 
 [Verification notes](docs/TESTING.md) describe the exercised gameplay path.
-Current results: **78/78 logic checks**, **64/64 headless integration checks**,
-and **64/64 native rendered integration checks**. The browser WebGL2 test remains
-environment-blocked and was not retried.
+Current source results: **79/79 logic checks** and **64/64 headless integration
+checks**, executed on 2026-10-07. Historical native rendered integration passed
+**64/64** on 2026-10-06; it is not a new release-runtime gameplay test.
+The earlier browser WebGL2 check is **BLOCKED BY VMWARE GPU ENVIRONMENT** and was
+not retried. The released game uses native OpenGL, not browser WebGL2.
 The integration playtest uses actual rigid-body simulation and input actions;
 it physically drives the loaded van to the workshop rather than teleporting
 to the destination.
@@ -264,49 +275,58 @@ and `qa/latest_visual_report.json`. Screenshots go to `qa/screenshots/`.
 The headless renderer omits audio playback and purely visual destination/water
 geometry; the rendered run exercises their actual presentation.
 
-## Build the Ubuntu development bundle
+### Desktop verification status
+
+- **TESTED:** source import/parsing, physical driving/delivery/payment, progression,
+  economy, save migration/recovery and settings in the existing automated suites.
+- Native package validation checks genuine x64 ELF/PE headers, Godot 4.3 PCK data,
+  archive structure and Linux executable permissions before packaging.
+- The Windows workflow additionally runs headless portable/installed startup and
+  silent install, shortcut, reinstall, uninstall and save-preservation checks.
+  Its actual results are recorded in the attached **`Windows-validation.txt`**.
+- **BUILT BUT NOT GRAPHICAL-RUNTIME-TESTED:** Windows interactive 3D gameplay/audio.
+- **NOT TESTED:** long multi-shift play, every complete delivery permutation and
+  broad clean-machine hardware compatibility. VMware constrains graphics/performance
+  validation; historical VM frame rates are not target-hardware guarantees.
+
+## Build desktop packages
+
+Use the existing Godot native export pipeline and **exactly matching official
+4.3 stable templates**. The bootstrap verifies the official SHA-512 checksum and
+extracts only the necessary desktop release runtimes.
+
+### Linux
 
 ```bash
-./tools/build_phase1.sh
+./tools/build_desktop.sh
 ```
 
-This creates `builds/phase1-linux/Harborline` and `Harborline.pck`, with license
-notices and the playing guide. The bundle uses the standard engine executable
-as its native PCK runtime; consequently it is larger than a release-template
-export. It opens directly into the game, not an editor or project manager.
-It is a portable **development bundle**, not a final installer.
+Creates the native ELF/PCK export in `builds/linux-release/` and the portable
+archive/checksum in `builds/releases/`. This is a release-template build rather
+than the older editor-runtime `builds/phase1-linux/Harborline` development bundle.
+That historical bundle and `tools/build_phase1.sh` remain available for recovery.
 
-## Future desktop packaging goal
+### Windows
 
-The future distribution goal is tested native **Linux/Ubuntu x64** and **Windows
-x64** playable builds, followed by a setup/installer where technically supported.
-This work is deliberately deferred while the game remains in active development;
-there is no final installer, release tag or GitHub Release in this repository yet.
+Run **Windows desktop package** from the repository's Actions tab, selecting
+`main`, or use:
 
-## Phase 2 export workflow — after playable-version approval
+```bash
+gh workflow run windows-desktop.yml --repo hussnainahmedd/astra-3d-car-game-v2 --ref main
+```
 
-`export_presets.cfg` includes **Linux x64** and **Windows x64** presets. Once
-Phase 1 has been approved:
+The `windows-latest` job uses `tools/build_windows.ps1`: official Godot 4.3 and
+templates, checksum-pinned rcedit 2.0.0, the existing icon, and Inno Setup 6.
+Download the workflow artifact for the genuine portable ZIP, setup EXE, checksum
+and validation report. On a Windows development machine, the same script can be
+run in PowerShell with Python, curl and Inno Setup installed.
 
-1. Install the **Godot 4.3 stable export templates** through the editor's export
-   template manager (free). Match templates to the engine version exactly.
-2. Create `builds/linux-release/` and `builds/windows-release/`.
-3. Produce release-template exports:
+Godot also supports Windows cross-export on Linux; executable-resource stamping
+needs rcedit/Wine there. The Windows workflow handles stamping and installer
+generation on their native platform.
 
-   ```bash
-   ./run.sh --headless --export-release "Linux x64" builds/linux-release/Harborline.x86_64
-   ./run.sh --headless --export-release "Windows x64" builds/windows-release/Harborline.exe
-   ```
-
-4. Include the PCK and license notices, then test both exports on clean target
-   systems with no editor, source checkout, or network connection.
-5. Package Linux as an AppImage and/or `.deb`; package Windows with a free
-   installer such as Inno Setup or NSIS. Add proper shortcuts, icons, version
-   metadata, upgrade/uninstall behavior and smoke tests.
-
-Windows exports can be generated from Linux. Windows runtime behavior still
-needs testing on Windows. Final installers and Windows binaries are deliberately
-deferred until approval of this playable version.
+For subsequent versions, follow [the release guide](docs/RELEASING.md):
+develop → test → commit/push → bump version → export/package → new GitHub Release.
 
 ## Scope and known limitations
 

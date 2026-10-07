@@ -1,7 +1,9 @@
-# Harborline Dispatch — quick start
+# Astra 3D Car Game V2 — quick start
 
-Run **Harborline** in this directory. Keep `Harborline.pck` beside it.
-This is a native, offline Linux x64 desktop game.
+Run **Astra-3D-Car-Game-V2.exe** on Windows or
+**Astra-3D-Car-Game-V2.x86_64** on Linux. Keep `Astra-3D-Car-Game-V2.pck` beside it.
+This is a native, offline desktop game set in the Harborline district.
+The older development bundle uses the filenames `Harborline` and `Harborline.pck`.
 
 ## Your first delivery
 
@@ -82,5 +84,9 @@ kept; a damaged primary is preserved as `progress.json.unreadable` when replacin
 
 Linux save directory:
 `~/.local/share/godot/app_userdata/Harborline Dispatch/`
+
+Windows: `%APPDATA%/godot/app_userdata/Harborline Dispatch/`.
+This legacy folder is preserved across the product rename. Uninstalling the game
+does not remove your progress. A save uses format v2 independently of release v0.1.0.
 
 You can exit with **Esc → Save & quit** or close the window.

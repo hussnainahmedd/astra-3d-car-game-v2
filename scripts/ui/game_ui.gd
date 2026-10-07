@@ -97,8 +97,8 @@ func _draw_hud() -> void:
 	var missions: DeliveryManager = game.missions
 	_box(hud, Rect2(30, 25, 34, 34), MINT, 5)
 	_text("H", Vector2(38, 25), 24, INK)
-	_text("HARBORLINE", Vector2(76, 22), 18)
-	_text("D I S P A T C H", Vector2(77, 46), 10, MUTED)
+	_text("ASTRA 3D", Vector2(76, 22), 18)
+	_text("C A R  G A M E  V 2", Vector2(77, 46), 10, MUTED)
 	_box(hud, Rect2(w - 247, 24, 215, 66), Color(0.06, 0.14, 0.17, 0.9), 8)
 	_text("SHIFT BALANCE", Vector2(w - 231, 34), 10, MUTED)
 	_text("$ %s" % _money(progress.money), Vector2(w - 231, 48), 25)
@@ -295,16 +295,16 @@ func show_main() -> void:
 	background.set_anchors_and_offsets_preset(Control.PRESET_LEFT_WIDE)
 	background.offset_right = 506
 	menu.add_child(background)
-	_label(menu, "H / D     INDEPENDENT COASTAL LOGISTICS", Vector2(48, 49), Vector2(415, 30), 11, MINT)
-	_label(menu, "HARBORLINE", Vector2(44, 133), Vector2(440, 65), 47)
-	_label(menu, "D I S P A T C H", Vector2(48, 200), Vector2(410, 50), 30, MINT)
+	_label(menu, "HARBORLINE DISPATCH / COASTAL LOGISTICS", Vector2(48, 49), Vector2(415, 30), 11, MINT)
+	_label(menu, "ASTRA 3D", Vector2(44, 133), Vector2(440, 65), 47)
+	_label(menu, "CAR GAME V2", Vector2(48, 200), Vector2(410, 50), 30, MINT)
 	_label(menu, "The last mile. Your own way.", Vector2(48, 288), Vector2(410, 35), 20)
 	_label(menu, "A van. A harbor. A shift that's yours.\nCollect cargo, take the coastal roads,\nand build a little business of your own.", Vector2(48, 337), Vector2(405, 80), 15, MUTED)
 	_button(menu, "Continue shift   →" if game.progress.has_progress else "Start your shift   →", Vector2(48, 452), Vector2(365, 54), game.start_game, true)
 	_button(menu, "Settings", Vector2(48, 520), Vector2(176, 45), func(): show_settings("main"))
 	_button(menu, "Quit", Vector2(237, 520), Vector2(176, 45), game.quit_game)
 	_label(menu, "WASD  Drive     J  Dispatch     E  Load / deliver\nC  Camera     H  Lights     N  Time of day", Vector2(48, 603), Vector2(410, 52), 12, MUTED)
-	_label(menu, "NATIVE DESKTOP PREVIEW   /   v0.2   /   OFFLINE", Vector2(48, 680), Vector2(420, 24), 10, MUTED)
+	_label(menu, "NATIVE DESKTOP PRERELEASE / v%s / OFFLINE" % ProjectSettings.get_setting("application/config/version"), Vector2(48, 680), Vector2(420, 24), 10, MUTED)
 	if not game.progress.load_message.is_empty():
 		var status = _label(menu, game.progress.load_message, Vector2(48, 409), Vector2(405, 40), 11, AMBER)
 		status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

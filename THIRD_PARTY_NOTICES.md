@@ -1,7 +1,7 @@
 # Third-party notices
 
 **Game code, geometry, textures, icon, and audio:** original work created for
-Harborline Dispatch, under the MIT license in `LICENSE`. No commercial game
+Astra 3D Car Game V2 (the Harborline district), under the MIT license in `LICENSE`. No commercial game
 assets, downloaded music, paid APIs, or third-party asset packs are used.
 
 **Godot Engine 4.3:** MIT-licensed native game engine. Copyright 2014–present

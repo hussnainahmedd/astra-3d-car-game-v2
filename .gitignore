@@ -19,6 +19,8 @@ qa/environment_status.json
 *.swo
 *~
 .cache/
+__pycache__/
+*.pyc
 
 # Dependency caches (this project currently has no Node dependency tree)
 node_modules/
@@ -44,3 +46,4 @@ cookies.json
 *.key
 *.p12
 *.pfx
+export_credentials.cfg

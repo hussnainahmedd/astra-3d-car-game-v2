@@ -1,4 +1,20 @@
-# Development continuation — 2026-10-05
+# Development continuation and release recovery
+
+## Release recovery — 2026-10-07
+
+- Recovered clean, synchronized V2 `main` at `bbb3f89`; no uncommitted source was
+  lost and the existing Linux development bundle was retained.
+- Confirmed official Godot 4.3 stable and existing native export presets.
+- Passed the existing gameplay suites; the coherent delivery/reward/continue loop
+  required no system rewrite.
+- Standardized product/window/menu/export identity as **Astra 3D Car Game V2**,
+  initial release **v0.1.0**, preserving the legacy save/profile directory.
+- Added checksum-verified official template bootstrap, Linux portable packaging,
+  Windows native export/resource stamping, Inno Setup packaging and CI validation.
+- Updated player/developer/release instructions. Actual downloadable artifacts
+  and platform validation records belong to the V2 GitHub prerelease.
+
+## Historical development continuation — 2026-10-05
 
 ## Resumed state
 
@@ -43,7 +59,7 @@
 - [x] Fit menu panels to the supported small window size and smooth camera placement
   between physics frames without replacing the existing presentation.
 
-## Outstanding work / next-session TODOs
+## Historical outstanding work / later playtest scope
 
 - [ ] User review of gameplay, handling, presentation and generated sound.
 - [ ] Drive more complete origin/destination journeys; current automation drives
@@ -53,12 +69,9 @@
   averaged about 24.9 FPS during the expanded visual integration run.
 - [ ] Verify long multi-shift play on stronger native hardware, including all ranks
   and contract types. Rules and save cases are covered by the headless logic suite.
-- [ ] After approval, install matching release export templates, generate Linux
-  and Windows release runtimes, and test on clean target machines.
-- [ ] Finish Windows executable-resource stamping, installers, shortcuts and
-  clean upgrade/uninstall/save-preservation checks.
-- [ ] After the playable version is approved: prepare the final release and desktop
-  distribution workflow.
+- Native export/installer configuration and repeatable release tooling are now
+  implemented for the authorized initial prerelease. Cross-hardware graphical
+  playtesting remains later verification, independently of build/CI checks.
 
 The earlier browser WebGL2 context test remains **environment-blocked by VMware**.
 No browser/WebGL2 retries were made. It is not a pending defect in the current

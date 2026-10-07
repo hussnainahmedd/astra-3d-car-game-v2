@@ -1,0 +1,35 @@
+name: Windows desktop package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-desktop-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Export, package, install and validate
+        shell: pwsh
+        run: ./tools/build_windows.ps1
+      - name: Upload valid desktop packages and validation record
+        uses: actions/upload-artifact@v4
+        with:
+          name: Astra-3D-Car-Game-V2-Windows-x64
+          path: |
+            builds/releases/Astra-3D-Car-Game-V2-Windows-x64.zip
+            builds/releases/Astra-3D-Car-Game-V2-Windows-x64-Setup.exe
+            builds/releases/SHA256SUMS-Windows.txt
+            builds/releases/Windows-validation.txt
+          if-no-files-found: error
+          compression-level: 0

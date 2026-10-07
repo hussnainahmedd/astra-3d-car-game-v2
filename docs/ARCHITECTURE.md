@@ -2,8 +2,9 @@
 
 ## What is actually in this project
 
-The inspected project is **Harborline Dispatch 0.2.0**, a native Godot 4.3
-stable / GDScript game. It already contained this architecture when development
+The project is **Astra 3D Car Game V2**, a native Godot 4.3
+stable / GDScript game, previously named Harborline Dispatch in the development
+preview. It already contained this architecture when development
 resumed on 2026-10-05. This session continued its existing gameplay and did not
 replace it with a new engine or a new project.
 
@@ -69,7 +70,7 @@ On this VM, one native X11/OpenGL run on 2026-10-05 successfully initialized
 integration checks. This does not establish browser WebGL2 support. The reported
 WebGL2 test remains environment-blocked and was not retried.
 
-## Recommended distribution strategy
+## Native desktop distribution
 
 Use the existing **native Godot exports**, maintaining the current engine and
 Compatibility renderer. Wrapping this project in Electron/Tauri would add a
@@ -83,39 +84,36 @@ preview**, not a final installer. QA, source docs, build tools and engine bootst
 files are excluded from its runtime pack. Packing finishes in a temporary file
 before replacing the playable PCK.
 
-After playable-game approval:
+The initial release version is **v0.1.0**, an explicitly prerelease-quality build.
+The earlier internal preview number 0.2.0 was not a published release. Gameplay
+and save format v2 remain intact; the original profile directory is preserved
+with `application/config/custom_user_dir_name`.
 
-1. Install the **official Godot 4.3 stable export templates**, matching the local
-   engine. The Linux x64 and Windows x64 presets already exist in
-   `export_presets.cfg`, with version 0.2.0 metadata and source-tool exclusions.
-2. Export genuine release runtimes. Create the output directories first, then
-   run from the project directory:
+`export_presets.cfg` retains the existing Linux x64 and Windows x64 architecture.
+The release uses official **4.3.stable** templates with the exact official editor
+`4.3.stable.official.77dcf97d8`, no engine conversion or browser wrapper.
 
-   ```bash
-   ./run.sh --headless --export-release "Linux x64" builds/linux-release/Harborline.x86_64
-   ./run.sh --headless --export-release "Windows x64" builds/windows-release/Harborline.exe
-   ```
+- `tools/install_export_templates.py` checks the pinned official SHA-512 checksum
+  and template version, then installs only selected desktop release templates.
+- `tools/build_desktop.sh` creates the Linux release-template export and portable
+  archive, keeping the genuine ELF executable and PCK together.
+- `tools/build_windows.ps1` and `.github/workflows/windows-desktop.yml` export on
+  `windows-latest`, stamp product/version/icon resources with rcedit 2.0.0, build
+  an Inno Setup installer, and validate headless startup and installation lifecycle.
+- `tools/package_desktop.py` verifies x64 ELF/PE32+ and Godot 4.3 PCK headers,
+  includes notices and the playing guide, and produces an archive, provenance
+  manifest and checksum. QA, tooling and generated caches stay out of the runtime.
 
-3. Test Linux on a clean Ubuntu 20.04-compatible system and Windows on an actual
-   Windows x64 machine. Verify launch, graphics, audio, input, saves, fullscreen,
-   focus/pause and paths containing spaces/non-ASCII characters. Linux can build
-   a Windows export; that does not replace Windows runtime verification.
-4. Include the game license, Godot license and bundled-library notices. For
-   Windows, enable proper executable icons/version-resource generation with the
-   export toolchain; the current development preset does not stamp those resources.
-5. Package Windows with **Inno Setup or NSIS**. Offer a portable ZIP if desired.
-   Use a **portable Linux archive/AppImage**, with a `.deb` if installation and
-   menu integration are desired. Validate the AppImage runtime against the
-   oldest supported distribution. Configure proper shortcuts, install locations,
-   upgrade/uninstall behavior and save-data preservation.
-6. After review and target-platform verification, prepare a GitHub Release with
-   the actual tested artifacts and checksums. The current source backup is already
-   in the dedicated V2 repository; no release assets have been published.
+The Windows installer is per-user and installs under LocalAppData/Programs.
+It provides Start Menu/uninstall entries and an optional desktop shortcut.
+Progress stays outside the installation and is preserved during reinstallation
+and uninstall. The stable installer AppId supports future updates.
 
 Released players will launch an executable or installed shortcut. They will not
 run npm, Vite, a localhost server, OmniRush or an editor. Normal system graphics
-and audio drivers remain required. No final installers, Windows exports or GitHub
-Release have been produced; this source backup is for active development.
+and audio drivers remain required. Windows graphical gameplay, broad hardware
+compatibility and prolonged play remain distinct from build/headless checks.
+Actual per-release verification is recorded in `TESTING.md` and release notes.
 
 ## Run the current preview
 
@@ -136,5 +134,5 @@ To run the source project with the existing local engine:
 ```
 
 On Windows, source can be opened with Godot **4.3 stable** and run with F5 (project)
-or F6 (`scenes/main.tscn`). A standalone Windows runtime is a later export,
-not the Linux `Harborline` file renamed to `.exe`.
+or F6 (`scenes/main.tscn`). The standalone Windows runtime comes from Godot's
+official Windows release template, exported as a genuine x64 PE32+ executable.

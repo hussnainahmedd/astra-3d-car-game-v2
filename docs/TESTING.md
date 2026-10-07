@@ -1,6 +1,43 @@
 # Verification
 
-## Current continuation — 2026-10-06, v0.2.0
+## Initial release source validation — 2026-10-07, v0.1.0
+
+Recovery found a clean, synchronized `main` at `bbb3f89`, with completed gameplay,
+the older Linux development bundle, no release templates, no workflow, and no
+existing tags/releases. The existing project was continued in place.
+
+| Executed check | Result |
+|---|---|
+| Headless editor import / script parsing | **PASSED** |
+| Existing logic/rule/persistence suite, plus profile-path preservation | **79 / 79 PASSED** |
+| Existing physical driving/input/UI/delivery integration | **64 / 64 PASSED** |
+| Shell syntax for source/development/Linux build scripts | **PASSED** |
+| Installer icon generation from the original SVG | **PASSED** |
+
+The integration physically drives loaded cargo to Northline Works, unloads it,
+and increases the wallet from **$650 to $956**. It exercises all seven loaded
+bay exits, traffic, maps/workshop, upgrades, save round-trips, settings and menus.
+The logic suite validates all 30 directed business routes, career milestones,
+payments, cargo, fuel/damage, save migration and corrupt-save fallback.
+
+The product rename preserves `godot/app_userdata/Harborline Dispatch`; the added
+regression check verifies the actual engine user-data directory. Personal saves
+and settings are not modified by QA.
+
+### Desktop release checks
+
+The packaging scripts fail on invalid executable/PCK headers, missing data,
+incorrect permissions, failed archive checks or failed native export commands.
+Windows build/lifecycle results are attached to each published release as
+`Windows-validation.txt`, including the actual source commit and compiler version.
+
+Windows graphical gameplay/audio and prolonged target-hardware play are **NOT
+TESTED** by headless startup. Historical native rendered results below are prior
+evidence, not newly executed release-template gameplay checks.
+The historical browser WebGL2 test remains **BLOCKED BY VMWARE GPU ENVIRONMENT**;
+it is not retried and is not the rendering API of this native release.
+
+## Historical continuation — 2026-10-06, internal preview v0.2.0
 
 Tested with the existing Godot 4.3 stable engine on Ubuntu 20.04 x64 / VMware.
 
