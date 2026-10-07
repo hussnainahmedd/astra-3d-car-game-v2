@@ -1,40 +1,69 @@
 # Native Windows export, executable metadata, portable ZIP and Inno Setup installer.
+param([ValidateSet('all', 'toolchain', 'export', 'installer', 'validate')][string] $Phase = 'all')
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
 Set-StrictMode -Version Latest
 $root = Split-Path $PSScriptRoot -Parent
 $tools = Join-Path $root '.tools'
 $export = Join-Path $root 'builds/windows-release'
 $output = Join-Path $root 'builds/releases'
-New-Item -ItemType Directory -Force $tools, $export, $output | Out-Null
+$logs = Join-Path $root 'builds/windows-validation'
+New-Item -ItemType Directory -Force $tools, $export, $output, $logs | Out-Null
+$script:engine = Join-Path $tools 'Godot_v4.3-stable_win64_console.exe'
+$script:commandNumber = 0
+$exe = Join-Path $export 'Astra-3D-Car-Game-V2.exe'
+$setup = Join-Path $output 'Astra-3D-Car-Game-V2-Windows-x64-Setup.exe'
+$compiler = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6/ISCC.exe'
+$versionMatch = [regex]::Match((Get-Content "$root/project.godot" -Raw), '(?m)^config/version="([^"]+)"')
+$version = $versionMatch.Groups[1].Value
+$work = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { [System.IO.Path]::GetTempPath() }
+$env:PATH = "$tools;$env:PATH"
 
 function Download-Checked($url, $path, $hash, $algorithm) {
-    if (!(Test-Path $path)) { Invoke-WebRequest $url -OutFile $path }
+    Write-Host "Downloading/verifying $(Split-Path $path -Leaf)"
+    if (!(Test-Path $path)) {
+        $partial = "$path.part"
+        & curl.exe --fail --location --retry 2 --continue-at - --connect-timeout 30 --max-time 300 --speed-time 60 --speed-limit 1024 --silent --show-error $url --output $partial
+        if ($LASTEXITCODE -ne 0) { throw "Download failed: $url" }
+        if ((Get-FileHash $partial -Algorithm $algorithm).Hash.ToLowerInvariant() -ne $hash) { throw "Checksum mismatch: $partial" }
+        Move-Item $partial $path
+    }
     if ((Get-FileHash $path -Algorithm $algorithm).Hash.ToLowerInvariant() -ne $hash) {
         throw "Checksum mismatch: $path"
     }
 }
 function Godot-Checked([string[]] $arguments) {
-    & $script:engine @arguments
-    if ($LASTEXITCODE -ne 0) { throw "Godot failed with exit $LASTEXITCODE" }
+    Write-Host "Godot: $($arguments -join ' ')"
+    $script:commandNumber++
+    $stdout = Join-Path $logs "$Phase-$script:commandNumber.stdout.log"
+    $stderr = Join-Path $logs "$Phase-$script:commandNumber.stderr.log"
+    $quoted = ($arguments | ForEach-Object { '"' + $_.Replace('"', '\"') + '"' }) -join ' '
+    $process = Start-Process $script:engine -ArgumentList $quoted -NoNewWindow -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+    if (!$process.WaitForExit(120000)) { $process.Kill(); throw 'Godot command exceeded two minutes' }
+    $process.WaitForExit()
+    $text = Get-Content $stdout -Raw
+    $errors = Get-Content $stderr -Raw
+    Write-Output $text
+    if ($errors) { Write-Output $errors }
+    if ($process.ExitCode -ne 0 -or $errors -match 'SCRIPT ERROR:|ERROR:|Parse Error') { throw 'Godot command failed; see validation logs' }
+    if ($arguments -contains '--version' -and $text.Trim() -ne '4.3.stable.official.77dcf97d8') { throw 'Wrong Godot version' }
 }
 
+if ($Phase -in @('all', 'toolchain')) {
 $baseUrl = 'https://github.com/godotengine/godot-builds/releases/download/4.3-stable'
 $editorZip = Join-Path $tools 'Godot_v4.3-stable_win64.exe.zip'
 Download-Checked "$baseUrl/Godot_v4.3-stable_win64.exe.zip" $editorZip 'ad09b7e19949327700dfbe64e35880a2a08091c0751277f5cc21b915e5df9b4fe93fb43c50d6bdfb9d16b46168592491aa698e0d2dbe9f92132e163dd77b97e1' 'SHA512'
 Expand-Archive $editorZip -DestinationPath $tools -Force
-$script:engine = Join-Path $tools 'Godot_v4.3-stable_win64_console.exe'
-if ((& $engine --version) -ne '4.3.stable.official.77dcf97d8') { throw 'Wrong Godot version' }
+Godot-Checked @('--version')
 python "$root/tools/install_export_templates.py" --platform windows
 if ($LASTEXITCODE -ne 0) { throw 'Template installation failed' }
 
 $rcedit = Join-Path $tools 'rcedit.exe'
 Download-Checked 'https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe' $rcedit '3e7801db1a5edbec91b49a24a094aad776cb4515488ea5a4ca2289c400eade2a' 'SHA256'
-$env:PATH = "$tools;$env:PATH"
+}
+if ($Phase -in @('all', 'export')) {
 Godot-Checked @('--headless', '--editor', '--path', $root, '--import', '--quit')
-$exe = Join-Path $export 'Astra-3D-Car-Game-V2.exe'
 Godot-Checked @('--headless', '--path', $root, '--export-release', 'Windows x64', $exe)
-$versionMatch = [regex]::Match((Get-Content "$root/project.godot" -Raw), '(?m)^config/version="([^"]+)"')
-$version = $versionMatch.Groups[1].Value
 $metadata = (Get-Item $exe).VersionInfo
 if ($metadata.ProductName -ne 'Astra 3D Car Game V2' -or $metadata.FileVersion -ne "$version.0") {
     throw 'Windows executable product/version stamping failed'
@@ -42,21 +71,23 @@ if ($metadata.ProductName -ne 'Astra 3D Car Game V2' -or $metadata.FileVersion -
 Godot-Checked @('--headless', '--path', $root, '--script', 'res://tools/make_windows_icon.gd')
 python "$root/tools/package_desktop.py" windows
 if ($LASTEXITCODE -ne 0) { throw 'Portable package validation failed' }
+}
 
-$compiler = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6/ISCC.exe'
+if ($Phase -in @('all', 'installer')) {
 if (!(Test-Path $compiler)) {
     choco install innosetup --version=6.4.3 --yes --no-progress
     if ($LASTEXITCODE -ne 0) { throw 'Inno Setup installation failed' }
 }
 & $compiler "/DAppVersion=$version" "/DExportDir=$export" "/DOutputDir=$output" "/DIconFile=$root/builds/branding/icon.ico" "$root/packaging/windows.iss"
 if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
-$setup = Join-Path $output 'Astra-3D-Car-Game-V2-Windows-x64-Setup.exe'
 if (!(Test-Path $setup) -or (Get-Item $setup).Length -lt 1MB) { throw 'Missing/invalid installer' }
+}
 
+if ($Phase -in @('all', 'validate')) {
 # Actual Windows headless runtime test, from outside the source tree.
 function Smoke-Test($runtime, $label) {
-    $log = Join-Path $env:RUNNER_TEMP "$label.log"
-    $process = Start-Process -FilePath $runtime -WorkingDirectory $env:RUNNER_TEMP -ArgumentList "--headless --quit-after 120 --log-file `"$log`" -- --sandbox --quickstart" -PassThru
+    $log = Join-Path $work "$label.log"
+    $process = Start-Process -FilePath $runtime -WorkingDirectory $work -ArgumentList "--headless --quit-after 120 --log-file `"$log`" -- --sandbox --quickstart" -PassThru
     if (!$process.WaitForExit(60000)) { $process.Kill(); throw "$label timed out" }
     if ($process.ExitCode -ne 0) { throw "$label exited $($process.ExitCode)" }
     if (!(Test-Path $log)) { throw "$label did not write its startup log" }
@@ -67,7 +98,7 @@ function Smoke-Test($runtime, $label) {
 Smoke-Test $exe 'portable'
 
 # Install/shortcut/reinstall/uninstall checks use only this disposable CI runner.
-$install = Join-Path $env:RUNNER_TEMP 'Astra installer test'
+$install = Join-Path $work 'Astra installer test'
 function Install-Test {
     $process = Start-Process $setup -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /DIR=`"$install`"" -Wait -PassThru
     if ($process.ExitCode -ne 0) { throw "Installer exited $($process.ExitCode)" }
@@ -105,3 +136,4 @@ $checksums = Get-ChildItem $output -File | Where-Object { $_.Extension -in @('.z
 }
 Set-Content (Join-Path $output 'SHA256SUMS-Windows.txt') $checksums -Encoding utf8
 $report | Write-Output
+}

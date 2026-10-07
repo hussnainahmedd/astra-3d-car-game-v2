@@ -38,7 +38,7 @@ def main():
         if not curl:
             raise SystemExit("curl is required to download the official templates")
         subprocess.run([curl, "--fail", "--location", "--retry", "2", "--continue-at", "-",
-                        "--connect-timeout", "30", "--speed-time", "60", "--speed-limit", "1024",
+                        "--connect-timeout", "30", "--max-time", "900", "--speed-time", "60", "--speed-limit", "1024",
                         "--silent", "--show-error", URL, "--output", str(partial)], check=True)
         if digest(partial) != SHA512:
             raise SystemExit("Template checksum mismatch; the download was preserved for inspection")
