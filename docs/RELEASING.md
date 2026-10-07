@@ -36,7 +36,8 @@ Initial version: **v0.1.0**, prerelease quality.
    startup, silent installation, Start Menu shortcut, reinstallation, uninstall
    and user-data preservation. It does not test interactive 3D gameplay/audio.
 6. Inspect archives and executable permissions/headers, and verify checksums.
-   Combine the platform checksum records as `SHA256SUMS.txt` for publication.
+   Run `python3 tools/release_checksums.py` to verify and combine the platform
+   records as LF-only `SHA256SUMS.txt` for Windows/Linux publication.
    Include the MIT game license and Godot/bundled-library notices in both packages.
 7. Check existing tags/releases. Use a new version; never replace a valid public
    release blindly. Tag the intended source commit and push the tag, then create
@@ -56,6 +57,6 @@ GitHub Releases provide update distribution; there is no automatic updater.
 - Exact editor: **4.3.stable.official.77dcf97d8** (official Godot 4.3 stable).
 - Templates: official **4.3.stable**, pinned SHA-512 from the official release.
 - Windows resource editor: **rcedit 2.0.0**, pinned SHA-256.
-- Windows installer: **Inno Setup 6**, native `windows-latest` runner; exact
+- Windows installer: **Inno Setup 6.7.1** for v0.1.0, native `windows-latest` runner; exact
   compiler version is recorded in the release validation report.
 - Packaging: Python standard library and existing native export presets.

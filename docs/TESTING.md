@@ -19,6 +19,10 @@ existing tags/releases. The existing project was continued in place.
 | Linux release headless startup outside the source directory | **PASSED**, exit 0 |
 | Extracted Linux archive headless startup outside the source directory | **PASSED**, exit 0 |
 | Short Linux release native X11 / OpenGL 3.3 startup on VMware SVGA3D | **PASSED**, exit 0, clean log |
+| Windows native export, executable product/version/icon and ZIP integrity | **PASSED** on `windows-latest` |
+| Real Inno Setup 6.7.1 installer compilation | **PASSED** on `windows-latest` |
+| Portable and installed Windows headless startup | **PASSED** on `windows-latest` |
+| Silent install, Start Menu shortcut, reinstall, uninstall and user-data preservation | **PASSED** on `windows-latest` |
 
 The integration physically drives loaded cargo to Northline Works, unloads it,
 and increases the wallet from **$650 to $956**. It exercises all seven loaded
@@ -45,6 +49,18 @@ The packaging scripts fail on invalid executable/PCK headers, missing data,
 incorrect permissions, failed archive checks or failed native export commands.
 Windows build/lifecycle results are attached to each published release as
 `Windows-validation.txt`, including the actual source commit and compiler version.
+The successful [Windows run](https://github.com/hussnainahmedd/astra-3d-car-game-v2/actions/runs/37661990517)
+built source `03f505417e2d4560e898aa40a43e98397cf8e38a` and completed in **1m56s**.
+The first opaque run stalled and exceeded its 25-minute limit; replacing the
+download path with resumable bounded curl, separating stages and preserving
+command diagnostics resolved the issue. No game system was rewritten.
+The actual installer compiler is **Inno Setup 6.7.1**, confirmed in its compiler
+output; its executable's generic `0.0.0.0` file-version field is not the tool version.
+Windows package CRCs and downloaded workflow-artifact digest/layout were verified.
+
+The same official Windows x64 runtime was also successfully cross-exported on
+Ubuntu. Its executable resources were finalized in the successful native Windows
+workflow, whose ZIP/setup are the published Windows artifacts.
 
 Windows graphical gameplay/audio and prolonged target-hardware play are **NOT
 TESTED** by headless startup. Historical native rendered results below are prior

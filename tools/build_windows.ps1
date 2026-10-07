@@ -78,8 +78,11 @@ if (!(Test-Path $compiler)) {
     choco install innosetup --version=6.4.3 --yes --no-progress
     if ($LASTEXITCODE -ne 0) { throw 'Inno Setup installation failed' }
 }
-& $compiler "/DAppVersion=$version" "/DExportDir=$export" "/DOutputDir=$output" "/DIconFile=$root/builds/branding/icon.ico" "$root/packaging/windows.iss"
+& $compiler "/DAppVersion=$version" "/DExportDir=$export" "/DOutputDir=$output" "/DIconFile=$root/builds/branding/icon.ico" "$root/packaging/windows.iss" | Tee-Object -Variable compilerOutput
 if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
+$compilerVersion = [regex]::Match(($compilerOutput -join "`n"), 'Compiler engine version: Inno Setup ([0-9.]+)').Groups[1].Value
+if (!$compilerVersion) { throw 'Could not determine the actual installer compiler version' }
+Set-Content (Join-Path $logs 'compiler-version.txt') $compilerVersion -NoNewline -Encoding utf8
 if (!(Test-Path $setup) -or (Get-Item $setup).Length -lt 1MB) { throw 'Missing/invalid installer' }
 }
 
@@ -123,17 +126,17 @@ $report = @(
     "Astra 3D Car Game V2 v$version",
     "Source: $(git -C $root rev-parse HEAD)",
     'Godot: 4.3.stable.official.77dcf97d8; official SHA-512 verified release templates',
-    "Installer compiler: $((Get-Item $compiler).VersionInfo.FileVersion)",
+    "Installer compiler: Inno Setup $((Get-Content (Join-Path $logs 'compiler-version.txt') -Raw).Trim())",
     'PASSED: x64 PE32+ executable, Godot 4.3 PCK, portable ZIP CRC/structure',
     'PASSED: product name, version metadata and existing project icon',
     'PASSED: portable and installed Windows headless startup',
     'PASSED: silent installation, Start Menu shortcut, reinstallation, uninstall and user-data preservation',
     'NOT TESTED: Windows graphical rendering, interactive gameplay and subjective audio'
 )
-Set-Content (Join-Path $output 'Windows-validation.txt') $report -Encoding utf8
+Set-Content (Join-Path $output 'Windows-validation.txt') (($report -join "`n") + "`n") -NoNewline -Encoding utf8
 $checksums = Get-ChildItem $output -File | Where-Object { $_.Extension -in @('.zip', '.exe') } | ForEach-Object {
     "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant())  $($_.Name)"
 }
-Set-Content (Join-Path $output 'SHA256SUMS-Windows.txt') $checksums -Encoding utf8
+Set-Content (Join-Path $output 'SHA256SUMS-Windows.txt') (($checksums -join "`n") + "`n") -NoNewline -Encoding utf8
 $report | Write-Output
 }

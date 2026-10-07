@@ -285,7 +285,8 @@ geometry; the rendered run exercises their actual presentation.
   archive structure and Linux executable permissions before packaging.
 - The Windows workflow additionally runs headless portable/installed startup and
   silent install, shortcut, reinstall, uninstall and save-preservation checks.
-  Its actual results are recorded in the attached **`Windows-validation.txt`**.
+  **PASSED** in [the release build](https://github.com/hussnainahmedd/astra-3d-car-game-v2/actions/runs/37661990517);
+  actual results are recorded in the attached **`Windows-validation.txt`**.
 - **BUILT BUT NOT GRAPHICAL-RUNTIME-TESTED:** Windows interactive 3D gameplay/audio.
 - **NOT TESTED:** long multi-shift play, every complete delivery permutation and
   broad clean-machine hardware compatibility. VMware constrains graphics/performance
@@ -318,7 +319,8 @@ gh workflow run windows-desktop.yml --repo hussnainahmedd/astra-3d-car-game-v2 -
 ```
 
 The `windows-latest` job uses `tools/build_windows.ps1`: official Godot 4.3 and
-templates, checksum-pinned rcedit 2.0.0, the existing icon, and Inno Setup 6.
+templates, checksum-pinned rcedit 2.0.0, the existing icon, and Inno Setup 6
+(**6.7.1** for this release).
 Download the workflow artifact for the genuine portable ZIP, setup EXE, checksum
 and validation report. On a Windows development machine, the same script can be
 run in PowerShell with Python, curl and Inno Setup installed.
