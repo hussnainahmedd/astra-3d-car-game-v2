@@ -1,138 +1,112 @@
-# Architecture and desktop delivery
+# RoadShift architecture
 
-## What is actually in this project
-
-The project is **Astra 3D Car Game V2**, a native Godot 4.3
-stable / GDScript game, previously named Harborline Dispatch in the development
-preview. It already contained this architecture when development
-resumed on 2026-10-05. This session continued its existing gameplay and did not
-replace it with a new engine or a new project.
-
-There is no Three.js renderer, JavaScript application, npm dependency, Vite
-configuration or localhost server in this directory. The browser/WebGL2 failure
-reported for the earlier preview is a real constraint of that preview environment,
-but it is not the rendering API used by these files.
+RoadShift is a native **Godot 4.3 stable / GDScript** desktop game. Its renderer,
+physics, input, UI, audio and export pipeline use the existing Godot project.
+The exact supported editor is `4.3.stable.official.77dcf97d8`.
 
 ## Runtime composition
 
-`scenes/main.tscn` loads `scripts/game.gd`, the composition root. It creates:
+`scenes/main.tscn` loads `scripts/game.gd`. The composition root creates:
 
-- **Simulation:** district, player rigid body, camera rig, traffic, vehicle
-  resources, delivery state machine and destination marker.
-- **Presentation:** a scaled 3D SubViewport behind a sharp native-resolution
-  Control HUD/menu layer. Graphics quality adjusts render resolution, shadows
-  and multisample antialiasing.
-- **Audio:** native audio players and buses, with original generated sounds.
-- **Local data:** versioned JSON progress and ConfigFile settings in Godot's
-  platform-specific application data directory, outside the installation.
+- A **SubViewport** with an independent 3D world and a pausable simulation subtree.
+- The district, player `RigidBody3D`, chase-camera rig, traffic, resource simulation,
+  delivery manager and world-space destination marker.
+- A full-window `TextureRect` presenting the lower-resolution 3D viewport behind
+  native-resolution **Control/CanvasLayer** menus, HUD and maps.
+- Native audio players and a shared progress/settings store.
 
-The root and UI process while paused; the simulation is a pausable subtree.
-Pause/resume changes are applied in the root's idle update to avoid changing
-physics-server state during an active query/step. The main menu disables the
-vehicle, traffic and world clock. Losing focus pauses normal gameplay.
+The root, menu UI and menu audio can process while the simulation is paused.
+Pause/resume requests are applied during idle processing, outside physics query
+flush/stepping. The main menu disables driving, traffic and the world clock.
+Losing focus pauses normal gameplay; sandbox/QA runs are isolated.
 
-### Systems and boundaries
+## Systems and boundaries
 
-| Location | Responsibility |
+| Source | Responsibility |
 |---|---|
-| `scripts/core/progress_store.gd` | v1 migration, v2 saves, last-good backup, bounded data/settings |
-| `scripts/core/input_bindings.gd` | Central keyboard actions, idempotent registration |
-| `scripts/vehicle/vehicle_controller.gd` | Actual rigid-body forces, suspension, tires, payload mass |
-| `scripts/vehicle/chase_camera.gd` | Three camera modes, wall avoidance, orbit and invert-Y |
-| `scripts/vehicle/vehicle_systems.gd` | Fuel, condition, upgrade effects and service prices |
-| `scripts/world/district.gd` | Procedural environment, lighting, places and driveway-attached road-graph routing |
-| `scripts/world/traffic.gd` | Five persistent cars, lane loops, following and signal stops |
-| `scripts/gameplay/delivery_manager.gd` | Offers, collection/delivery, cargo condition, payment, service detours |
-| `scripts/gameplay/career.gd` | Rank thresholds, milestone awards and purchase rules |
-| `scripts/ui/` | Dispatch, map/business summary, workshop, HUD and settings |
-| `qa/` | Source-only logic, physics/input/UI integration and visual checks |
+| `core/input_bindings.gd` | Centralized, idempotent keyboard-action registration |
+| `core/progress_store.gd` | v2 JSON, v1 migration, bounded fields, backup recovery, ConfigFile preferences |
+| `vehicle/vehicle_controller.gd` | Four spring raycasts, damping, tire/drive/brake forces, collisions, payload and recovery |
+| `vehicle/vehicle_visual.gd` | Merged vehicle meshes, spinning/steering wheels, headlights and brake lights |
+| `vehicle/chase_camera.gd` | Chase/close/bonnet views, mouse orbit, recentering, invert-Y and obstacle raycasts |
+| `vehicle/vehicle_systems.gd` | Fuel, condition, mileage, upgrade effects and service transactions |
+| `world/district.gd` | Geometry, collision, lighting, world clock, delivery places and road graph |
+| `world/traffic.gd` | Five `CharacterBody3D` cars on baked `Curve3D` loops, following, signals and collisions |
+| `world/geometry.gd`, `scenery_batch.gd` | Primitive meshes/materials, SurfaceTool/ArrayMesh merging and simple colliders |
+| `gameplay/delivery_manager.gd` | Offers, collection/delivery, timers, cargo damage, rewards, routing and service detours |
+| `gameplay/career.gd` | Four rank thresholds, one-time milestone awards and purchase rules |
+| `ui/game_ui.gd`, `minimap.gd` | Native menus, HUD drawing, maps, status and interaction controls |
+| `audio/game_audio.gd` | Seeded PCM synthesis, native playback, pitch/volume changes and audio buses |
 
-Service proximity/upright/stationary requirements are enforced by the composition
-root as well as reflected in the UI. Purchase rules independently enforce rank,
-ownership and affordability. Repairs do not heal cargo. A delivery can pay only
-once; late work still receives its base pay. There are no runtime network services.
+All paths in this table are under `scripts/`. Internal class/node identifiers
+remain stable across product-name changes.
 
-## Renderer availability and failure handling
+## Physics and navigation
 
-`project.godot` selects **OpenGL Compatibility** for desktop and mobile renderer
-settings. The game uses OpenGL 3.3 on Linux x64; it does not request WebGL2,
-transform feedback, Vulkan or a browser context. The custom water shader also
-uses the existing Compatibility pipeline.
+GodotPhysics3D advances at **60 Hz**. The van applies spring, damping and tire
+forces through `PhysicsDirectBodyState3D`; cargo increases rigid-body mass.
+Buildings use simple physical collision shapes, and traffic uses movement with
+collision checks. This is a simplified driving model rather than tire deformation
+or a full drivetrain simulation.
 
-Godot creates the native graphics context before executing the game's scripts.
-If that context cannot be created on a target machine, the engine reports the
-graphics initialization error and exits. A GDScript HUD cannot display an error
-before the renderer exists. There is no custom second renderer initializer that
-could inadvertently request WebGL2.
+Navigation attaches the van and destination driveway to a nine-intersection
+road graph, searches shortest paths using Dijkstra-style distance/visited tables,
+and retains explicit driveway legs. The map, distance and turn hints share the
+resulting route. Traffic uses separate fixed lane curves.
 
-On this VM, one native X11/OpenGL run on 2026-10-05 successfully initialized
-`OpenGL API 3.3 (Core Profile) Mesa 21.2.6` on VMware SVGA3D and passed all 64
-integration checks. This does not establish browser WebGL2 support. The reported
-WebGL2 test remains environment-blocked and was not retried.
+Collection/unloading requires upright parking, at least three grounded wheels,
+speed below 2 km/h and proximity to the active bay. Service/purchases enforce
+similar parking requirements at Coast Service. Rewards apply once, late jobs
+keep their base pay, and repairs do not restore cargo condition.
 
-## Native desktop distribution
+## Presentation and resources
 
-Use the existing **native Godot exports**, maintaining the current engine and
-Compatibility renderer. Wrapping this project in Electron/Tauri would add a
-browser runtime without benefiting the existing native implementation.
+Native **OpenGL 3.3 Compatibility** renders the world. Quality adjusts SubViewport
+resolution, sun shadows and MSAA while the HUD stays at window resolution.
+Scenery and vehicle bodies are merged/batched `ArrayMesh` resources with vertex
+colors and `StandardMaterial3D`; the water uses `assets/water.gdshader` through
+`ShaderMaterial`. The sky is `ProceduralSkyMaterial`.
 
-The current `builds/phase1-linux/` bundle contains a genuine Linux x64 ELF runtime
-plus the game's PCK. The runtime is the standard Godot executable acting as a PCK
-player; it starts the game directly and requires no separately installed engine.
-It is larger than a release-template build and is a portable **development
-preview**, not a final installer. QA, source docs, build tools and engine bootstrap
-files are excluded from its runtime pack. Packing finishes in a temporary file
-before replacing the playable PCK.
+Audio is locally synthesized **16-bit mono PCM at 22,050 Hz** into
+`AudioStreamWAV` resources and played through native `AudioStreamPlayer` nodes.
+Master/Music/Effects bus settings and engine load/speed control volume/pitch.
 
-The initial release version is **v0.1.0**, an explicitly prerelease-quality build.
-The earlier internal preview number 0.2.0 was not a published release. Gameplay
-and save format v2 remain intact; the original profile directory is preserved
-with `application/config/custom_user_dir_name`.
+Source resources include GDScript, TSCN, SVG, shader and configuration files.
+Godot imports the icon and compiles scripts/scenes for native PCK export.
 
-`export_presets.cfg` retains the existing Linux x64 and Windows x64 architecture.
-The release uses official **4.3.stable** templates with the exact official editor
-`4.3.stable.official.77dcf97d8`, no engine conversion or browser wrapper.
+## Persistence compatibility
 
-- `tools/install_export_templates.py` checks the pinned official SHA-512 checksum
-  and template version, then installs only selected desktop release templates.
-- `tools/build_desktop.sh` creates the Linux release-template export and portable
-  archive, keeping the genuine ELF executable and PCK together.
-- `tools/build_windows.ps1` and `.github/workflows/windows-desktop.yml` export on
-  `windows-latest`, stamp product/version/icon resources with rcedit 2.0.0, build
-  an Inno Setup installer, and validate headless startup and installation lifecycle.
-- `tools/package_desktop.py` verifies x64 ELF/PE32+ and Godot 4.3 PCK headers,
-  includes notices and the playing guide, and produces an archive, provenance
-  manifest and checksum. QA, tooling and generated caches stay out of the runtime.
+`ProgressStore.VERSION` stays **2**, independently of desktop release versions.
+The custom user-directory setting deliberately retains
+`godot/app_userdata/Harborline Dispatch` so existing saves/settings remain readable.
+No progress schema or field identifiers are renamed for branding.
 
-The Windows installer is per-user and installs under LocalAppData/Programs.
-It provides Start Menu/uninstall entries and an optional desktop shortcut.
-Progress stays outside the installation and is preserved during reinstallation
-and uninstall. The stable installer AppId supports future updates.
+Progress is validated and written to a temporary file before rename. A last-good
+backup is retained; unreadable primaries are preserved. QA uses its own slots and
+does not write personal settings.
 
-Released players will launch an executable or installed shortcut. They will not
-run npm, Vite, a localhost server, OmniRush or an editor. Normal system graphics
-and audio drivers remain required. Windows graphical gameplay, broad hardware
-compatibility and prolonged play remain distinct from build/headless checks.
-Actual per-release verification is recorded in `TESTING.md` and release notes.
+## Desktop distribution
 
-## Run the current preview
+- `tools/install_export_templates.py` verifies the pinned official SHA-512 archive
+  checksum and exact **4.3.stable** template version.
+- `tools/build_desktop.sh` exports **RoadShift.x86_64** and **RoadShift.pck** and
+  packages a portable Linux tar.gz.
+- `tools/build_windows.ps1` exports **RoadShift.exe**, uses **rcedit 2.0.0** for
+  metadata/icon resources, builds the portable ZIP and compiles **Inno Setup 6**.
+- `tools/package_desktop.py` verifies ELF/PE32+ x64 and PCK headers, copies the
+  guide/notices, and records source/version/file hashes in `BUILD_INFO.json`.
+- `.github/workflows/windows-desktop.yml` performs the native Windows build and
+  install/reinstall/uninstall/headless-startup checks on `windows-latest`.
+- `tools/release_checksums.py` verifies platform records and writes LF-only
+  release-wide SHA-256 checksums.
 
-On this Ubuntu machine, from any working directory:
+Installers use the stable application ID and keep user data outside installation.
+Explicit installer file selection excludes obsolete executable/data names left
+in a reused export directory. Player packages contain native runtimes and game
+data, not editor setup or QA tooling.
 
-```bash
-./builds/phase1-linux/Harborline
-```
+`tools/build_phase1.sh` remains an optional Linux development-bundle utility;
+its RoadShift/PCK output uses the editor executable as a runtime and is larger
+than the release-template export. Release packages use the native release templates.
 
-Keep `Harborline` and `Harborline.pck` together when copying the folder to another
-Linux x64 machine. OpenGL 3.3 support is sufficient; WebGL2 capability is not
-needed for this native game.
-
-To run the source project with the existing local engine:
-
-```bash
-./run.sh
-```
-
-On Windows, source can be opened with Godot **4.3 stable** and run with F5 (project)
-or F6 (`scenes/main.tscn`). The standalone Windows runtime comes from Godot's
-official Windows release template, exported as a genuine x64 PE32+ executable.
+See [release instructions](RELEASING.md) and [verification coverage](TESTING.md).

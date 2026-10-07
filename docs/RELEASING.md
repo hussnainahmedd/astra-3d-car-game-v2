@@ -1,62 +1,76 @@
-# Native desktop releases
+# RoadShift desktop releases
 
-Repository: **hussnainahmedd/astra-3d-car-game-v2**, branch **main**.
-Initial version: **v0.1.0**, prerelease quality.
+Current repository: **hussnainahmedd/astra-3d-car-game-v2**, branch **main**.
+The current repository location remains authoritative until its owner renames it.
+RoadShift uses **v0.1.1** for the naming/documentation update; **v0.1.0** remains
+an archived, working prerelease.
 
-## Repeatable update path
+## Repeatable release path
 
-1. Develop within the existing Godot project. Run:
+1. Develop within the existing Godot project, then run:
    ```bash
    ./run.sh --headless --editor --import --quit
    ./run.sh --headless --script res://qa/logic_tests.gd
    ./run.sh --headless --fixed-fps 60 -- --qa
    ```
-2. Update `project.godot`'s `config/version`, the two Windows four-part version
-   fields in `export_presets.cfg`, and current README/testing notes. The Windows
-   build rejects inconsistent executable version metadata.
-3. Review/stage source, assets, docs and packaging configuration; commit and push
-   to V2 `origin/main`. Keep `.tools/`, `.godot/`, `builds/`, QA outputs and
-   credentials excluded from Git.
-4. Build Linux sequentially:
+2. Set `project.godot`'s `config/version` and the matching four-part Windows
+   version fields in `export_presets.cfg`. Update current player/release notes.
+   Keep save format v2 and its profile directory independent of release versions.
+3. Review source, assets, docs and packaging changes, then commit/push to
+   `origin/main`. Keep `.tools/`, `.godot/`, generated packages, QA reports and
+   credentials excluded. Verify local HEAD equals `origin/main`.
+4. Export and package Linux:
    ```bash
    ./tools/build_desktop.sh
-   ./builds/linux-release/Astra-3D-Car-Game-V2.x86_64 --headless --quit-after 120 -- --sandbox --quickstart
+   ./builds/linux-release/RoadShift.x86_64 --headless --quit-after 120 -- --sandbox --quickstart
    ```
-   For independence checks, run the executable by absolute path from outside the
-   project. Keep it beside its PCK. A short native graphical startup can be checked
-   where supported; record VMware renderer blocks separately from script failures.
-5. Dispatch **Windows desktop package** on `main`:
+   Test the absolute executable path and extracted archive from a working
+   directory outside the source checkout. Use sandbox saves for smoke checks.
+5. Dispatch the native Windows workflow:
    ```bash
    gh workflow run windows-desktop.yml --repo hussnainahmedd/astra-3d-car-game-v2 --ref main
    gh run list --repo hussnainahmedd/astra-3d-car-game-v2 --workflow windows-desktop.yml
-   gh run download RUN_ID --repo hussnainahmedd/astra-3d-car-game-v2 --name Astra-3D-Car-Game-V2-Windows-x64 --dir builds/releases
+   gh run download RUN_ID --repo hussnainahmedd/astra-3d-car-game-v2 --name RoadShift-Windows-x64 --dir builds/releases
    ```
-   Require a successful run and inspect `Windows-validation.txt`. The job verifies
-   official toolchain hashes, x64 runtime/data, product metadata, Windows headless
-   startup, silent installation, Start Menu shortcut, reinstallation, uninstall
-   and user-data preservation. It does not test interactive 3D gameplay/audio.
-6. Inspect archives and executable permissions/headers, and verify checksums.
-   Run `python3 tools/release_checksums.py` to verify and combine the platform
-   records as LF-only `SHA256SUMS.txt` for Windows/Linux publication.
-   Include the MIT game license and Godot/bundled-library notices in both packages.
-7. Check existing tags/releases. Use a new version; never replace a valid public
-   release blindly. Tag the intended source commit and push the tag, then create
-   a GitHub prerelease and attach the genuine ZIP, setup EXE, Linux archive,
-   checksums and validation report. Use `gh`, secure existing authentication, and
-   explicit `--repo hussnainahmedd/astra-3d-car-game-v2`.
-8. Verify `HEAD == origin/main`, tag target, published prerelease status, expected
-   asset names/sizes/digests and downloadable files. Ensure README/release notes
-   distinguish executed checks from untested graphical gameplay.
+   Require success and inspect `Windows-validation.txt`. It records the actual
+   source commit and installer compiler version, plus runtime and installation
+   results. The workflow's isolated fixtures validate portable/installed headless
+   startup, installation, Start Menu, reinstallation, uninstall and saved-data
+   preservation; they do not test interactive graphics/audio.
+6. Verify genuine x64 ELF/PE/PCK files, archive structure, Linux permissions,
+   RoadShift naming and per-package provenance. Record Linux startup results in
+   `Linux-validation.txt`, then run:
+   ```bash
+   python3 tools/release_checksums.py
+   ```
+   This verifies platform checksum records and creates LF-only `SHA256SUMS.txt`.
+7. Check existing tags/releases and select a new semantic version. Tag the intended
+   source commit, push the tag, and create a GitHub prerelease with concise player
+   instructions and actual test status. Upload:
+   - `RoadShift-Setup-Windows-x64.exe`
+   - `RoadShift-Windows-x64.zip`
+   - `RoadShift-Linux-x64.tar.gz`
+   - `SHA256SUMS.txt`, `Windows-validation.txt` and `Linux-validation.txt`
+   Use the GitHub CLI with existing secure authentication and the current repository.
+   Preserve previous working releases and their assets.
+8. Verify repository, source/tag targets, public prerelease status, asset names,
+   nonzero sizes, uploaded digests and anonymous download access. Confirm README,
+   release notes and artifact manifests match the published version.
 
-The portable Linux archive is the initial distribution format; AppImage/DEB are
-not required. Windows uses a real Inno Setup installer plus portable ZIP.
-GitHub Releases provide update distribution; there is no automatic updater.
+The supported Linux format is the native portable tar.gz; Windows uses a portable
+ZIP and a real Inno Setup installer. GitHub Releases provide update distribution.
 
 ## Toolchain
 
-- Exact editor: **4.3.stable.official.77dcf97d8** (official Godot 4.3 stable).
-- Templates: official **4.3.stable**, pinned SHA-512 from the official release.
-- Windows resource editor: **rcedit 2.0.0**, pinned SHA-256.
-- Windows installer: **Inno Setup 6.7.1** for v0.1.0, native `windows-latest` runner; exact
-  compiler version is recorded in the release validation report.
-- Packaging: Python standard library and existing native export presets.
+- Editor: official **4.3.stable.official.77dcf97d8**.
+- Templates: official **4.3.stable**, archive SHA-512 pinned in the installer utility.
+- Windows resource editor: **rcedit 2.0.0**, SHA-256 pinned in the Windows build script.
+- Windows installer: **Inno Setup 6**; the hosted compiler version is recorded in
+  each validation report. The configured absent-tool fallback is 6.4.3.
+- CI: `windows-latest`, Python 3.12, native PowerShell build stages and artifact upload.
+- Packaging: Python standard library; Bash for Linux orchestration.
+
+Every package includes the MIT game license, Godot/bundled-library notices and
+the playing guide. Build manifests record product, version, source commit and
+file hashes. The installer keeps a stable application ID for update continuity;
+user data is outside its installation directory.

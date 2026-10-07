@@ -12,8 +12,8 @@ import tarfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-PRODUCT = "Astra 3D Car Game V2"
-BASENAME = "Astra-3D-Car-Game-V2"
+PRODUCT = "RoadShift"
+BASENAME = "RoadShift"
 
 
 def digest(path):

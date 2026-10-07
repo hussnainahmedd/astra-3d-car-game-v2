@@ -1,9 +1,10 @@
-; Astra 3D Car Game V2 — native desktop driving and delivery game.
+; RoadShift — Open World Delivery & Driving Simulator.
 config_version=5
 
 [application]
-config/name="Astra 3D Car Game V2"
-config/version="0.1.0"
+config/name="RoadShift"
+config/description="RoadShift — Open World Delivery & Driving Simulator"
+config/version="0.1.1"
 ; Preserve the existing development profile when changing the product name.
 config/use_custom_user_dir=true
 config/custom_user_dir_name="godot/app_userdata/Harborline Dispatch"

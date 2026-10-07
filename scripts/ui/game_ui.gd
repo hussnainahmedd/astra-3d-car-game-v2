@@ -96,9 +96,9 @@ func _draw_hud() -> void:
 	var progress: ProgressStore = game.progress
 	var missions: DeliveryManager = game.missions
 	_box(hud, Rect2(30, 25, 34, 34), MINT, 5)
-	_text("H", Vector2(38, 25), 24, INK)
-	_text("ASTRA 3D", Vector2(76, 22), 18)
-	_text("C A R  G A M E  V 2", Vector2(77, 46), 10, MUTED)
+	_text("R", Vector2(38, 25), 24, INK)
+	_text("RoadShift", Vector2(76, 22), 18)
+	_text("DELIVERY & DRIVING", Vector2(77, 46), 10, MUTED)
 	_box(hud, Rect2(w - 247, 24, 215, 66), Color(0.06, 0.14, 0.17, 0.9), 8)
 	_text("SHIFT BALANCE", Vector2(w - 231, 34), 10, MUTED)
 	_text("$ %s" % _money(progress.money), Vector2(w - 231, 48), 25)
@@ -295,9 +295,9 @@ func show_main() -> void:
 	background.set_anchors_and_offsets_preset(Control.PRESET_LEFT_WIDE)
 	background.offset_right = 506
 	menu.add_child(background)
-	_label(menu, "HARBORLINE DISPATCH / COASTAL LOGISTICS", Vector2(48, 49), Vector2(415, 30), 11, MINT)
-	_label(menu, "ASTRA 3D", Vector2(44, 133), Vector2(440, 65), 47)
-	_label(menu, "CAR GAME V2", Vector2(48, 200), Vector2(410, 50), 30, MINT)
+	_label(menu, "OPEN WORLD DELIVERY & DRIVING SIMULATOR", Vector2(48, 49), Vector2(415, 30), 11, MINT)
+	_label(menu, "RoadShift", Vector2(44, 133), Vector2(440, 65), 47)
+	_label(menu, "DELIVERY & DRIVING", Vector2(48, 200), Vector2(410, 50), 27, MINT)
 	_label(menu, "The last mile. Your own way.", Vector2(48, 288), Vector2(410, 35), 20)
 	_label(menu, "A van. A harbor. A shift that's yours.\nCollect cargo, take the coastal roads,\nand build a little business of your own.", Vector2(48, 337), Vector2(405, 80), 15, MUTED)
 	_button(menu, "Continue shift   →" if game.progress.has_progress else "Start your shift   →", Vector2(48, 452), Vector2(365, 54), game.start_game, true)
@@ -332,7 +332,7 @@ func show_jobs() -> void:
 	screen = "jobs"
 	_backdrop()
 	var panel = _panel((root.size - Vector2(956, 482)) / 2, Vector2(956, 482))
-	_label(panel, "HARBORLINE  /  DISPATCH BOARD", Vector2(29, 24), Vector2(800, 25), 12, MINT)
+	_label(panel, "ROADSHIFT  /  DISPATCH BOARD", Vector2(29, 24), Vector2(800, 25), 12, MINT)
 	_label(panel, "Good work. Just down the road.", Vector2(29, 57), Vector2(800, 46), 29)
 	_label(panel, "%s  •  %s" % [CourierCareer.rank_name(game.progress.completed), CourierCareer.next_goal(game.progress.completed)], Vector2(30, 113), Vector2(885, 27), 12, MINT)
 	if not game.missions.job.is_empty():

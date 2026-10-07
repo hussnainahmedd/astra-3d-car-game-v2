@@ -1,4 +1,4 @@
-name: Windows desktop package
+name: RoadShift Windows desktop package
 
 on:
   workflow_dispatch:
@@ -34,10 +34,10 @@ jobs:
       - name: Upload valid desktop packages and validation record
         uses: actions/upload-artifact@v4
         with:
-          name: Astra-3D-Car-Game-V2-Windows-x64
+          name: RoadShift-Windows-x64
           path: |
-            builds/releases/Astra-3D-Car-Game-V2-Windows-x64.zip
-            builds/releases/Astra-3D-Car-Game-V2-Windows-x64-Setup.exe
+            builds/releases/RoadShift-Windows-x64.zip
+            builds/releases/RoadShift-Setup-Windows-x64.exe
             builds/releases/SHA256SUMS-Windows.txt
             builds/releases/Windows-validation.txt
           if-no-files-found: error
@@ -46,6 +46,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Windows-build-diagnostics
+          name: RoadShift-Windows-build-diagnostics
           path: builds/windows-validation/
           if-no-files-found: ignore

@@ -8,7 +8,7 @@ var failed: bool = false
 
 func _initialize() -> void:
 	DirAccess.make_dir_recursive_absolute("res://builds/phase1-linux")
-	var result = packer.pck_start("res://builds/phase1-linux/Harborline.pck.tmp")
+	var result = packer.pck_start("res://builds/phase1-linux/RoadShift.pck.tmp")
 	if result != OK:
 		push_error("Cannot create development pack: %s" % error_string(result))
 		quit(1)
@@ -29,12 +29,12 @@ func _initialize() -> void:
 		push_error("Development pack was not replaced because packing failed.")
 		quit(1)
 	else:
-		result = DirAccess.rename_absolute(ProjectSettings.globalize_path("res://builds/phase1-linux/Harborline.pck.tmp"), ProjectSettings.globalize_path("res://builds/phase1-linux/Harborline.pck"))
+		result = DirAccess.rename_absolute(ProjectSettings.globalize_path("res://builds/phase1-linux/RoadShift.pck.tmp"), ProjectSettings.globalize_path("res://builds/phase1-linux/RoadShift.pck"))
 		if result != OK:
 			push_error("Could not replace development pack: " + error_string(result))
 			quit(1)
 		else:
-			print("Packed %d runtime files into builds/phase1-linux/Harborline.pck" % count)
+			print("Packed %d runtime files into builds/phase1-linux/RoadShift.pck" % count)
 			quit(0)
 
 func add_directory(path: String) -> void:

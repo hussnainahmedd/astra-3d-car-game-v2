@@ -1,8 +1,9 @@
 # Third-party notices
 
-**Game code, geometry, textures, icon, and audio:** original work created for
-Astra 3D Car Game V2 (the Harborline district), under the MIT license in `LICENSE`. No commercial game
-assets, downloaded music, paid APIs, or third-party asset packs are used.
+**RoadShift code and resources:** distributed under the MIT license in `LICENSE`.
+World geometry, the icon and the audio synthesis definitions are included in the
+source project. Audio is synthesized locally; there are no external asset packs
+or runtime network services.
 
 **Godot Engine 4.3:** MIT-licensed native game engine. Copyright 2014–present
 Godot Engine contributors; copyright 2007–2014 Juan Linietsky and Ariel Manzur.

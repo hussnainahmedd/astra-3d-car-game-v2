@@ -11,8 +11,8 @@ $logs = Join-Path $root 'builds/windows-validation'
 New-Item -ItemType Directory -Force $tools, $export, $output, $logs | Out-Null
 $script:engine = Join-Path $tools 'Godot_v4.3-stable_win64_console.exe'
 $script:commandNumber = 0
-$exe = Join-Path $export 'Astra-3D-Car-Game-V2.exe'
-$setup = Join-Path $output 'Astra-3D-Car-Game-V2-Windows-x64-Setup.exe'
+$exe = Join-Path $export 'RoadShift.exe'
+$setup = Join-Path $output 'RoadShift-Setup-Windows-x64.exe'
 $compiler = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6/ISCC.exe'
 $versionMatch = [regex]::Match((Get-Content "$root/project.godot" -Raw), '(?m)^config/version="([^"]+)"')
 $version = $versionMatch.Groups[1].Value
@@ -65,7 +65,7 @@ if ($Phase -in @('all', 'export')) {
 Godot-Checked @('--headless', '--editor', '--path', $root, '--import', '--quit')
 Godot-Checked @('--headless', '--path', $root, '--export-release', 'Windows x64', $exe)
 $metadata = (Get-Item $exe).VersionInfo
-if ($metadata.ProductName -ne 'Astra 3D Car Game V2' -or $metadata.FileVersion -ne "$version.0") {
+if ($metadata.ProductName -ne 'RoadShift' -or $metadata.FileVersion -ne "$version.0") {
     throw 'Windows executable product/version stamping failed'
 }
 Godot-Checked @('--headless', '--path', $root, '--script', 'res://tools/make_windows_icon.gd')
@@ -101,15 +101,15 @@ function Smoke-Test($runtime, $label) {
 Smoke-Test $exe 'portable'
 
 # Install/shortcut/reinstall/uninstall checks use only this disposable CI runner.
-$install = Join-Path $work 'Astra installer test'
+$install = Join-Path $work 'RoadShift installer test'
 function Install-Test {
     $process = Start-Process $setup -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /DIR=`"$install`"" -Wait -PassThru
     if ($process.ExitCode -ne 0) { throw "Installer exited $($process.ExitCode)" }
 }
 Install-Test
-$installedExe = Join-Path $install 'Astra-3D-Car-Game-V2.exe'
-if (!(Test-Path $installedExe) -or !(Test-Path "$install/Astra-3D-Car-Game-V2.pck")) { throw 'Installer omitted runtime/data' }
-$shortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'Astra 3D Car Game V2/Astra 3D Car Game V2.lnk'
+$installedExe = Join-Path $install 'RoadShift.exe'
+if (!(Test-Path $installedExe) -or !(Test-Path "$install/RoadShift.pck")) { throw 'Installer omitted runtime/data' }
+$shortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'RoadShift/RoadShift.lnk'
 if (!(Test-Path $shortcut)) { throw 'Start Menu shortcut missing' }
 Smoke-Test $installedExe 'installed'
 $saveDir = Join-Path ([Environment]::GetFolderPath('ApplicationData')) 'godot/app_userdata/Harborline Dispatch'
@@ -123,7 +123,7 @@ if ($uninstall.ExitCode -ne 0 -or (Test-Path $installedExe) -or (Test-Path $shor
     throw 'Uninstall or save preservation failed'
 }
 $report = @(
-    "Astra 3D Car Game V2 v$version",
+    "RoadShift v$version",
     "Source: $(git -C $root rev-parse HEAD)",
     'Godot: 4.3.stable.official.77dcf97d8; official SHA-512 verified release templates',
     "Installer compiler: Inno Setup $((Get-Content (Join-Path $logs 'compiler-version.txt') -Raw).Trim())",
@@ -134,7 +134,7 @@ $report = @(
     'NOT TESTED: Windows graphical rendering, interactive gameplay and subjective audio'
 )
 Set-Content (Join-Path $output 'Windows-validation.txt') (($report -join "`n") + "`n") -NoNewline -Encoding utf8
-$checksums = Get-ChildItem $output -File | Where-Object { $_.Extension -in @('.zip', '.exe') } | ForEach-Object {
+$checksums = @((Join-Path $output 'RoadShift-Windows-x64.zip'), $setup) | Get-Item | ForEach-Object {
     "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant())  $($_.Name)"
 }
 Set-Content (Join-Path $output 'SHA256SUMS-Windows.txt') (($checksums -join "`n") + "`n") -NoNewline -Encoding utf8

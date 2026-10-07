@@ -187,7 +187,7 @@ func run() -> void:
 	for i in game.traffic.cars.size():
 		if game.traffic.cars[i].body.position.distance_to(traffic_positions[i]) > 15:
 			ai_moved = true
-	check("AI traffic circulates through the district", ai_moved)
+	check("Traffic circulates through the district", ai_moved)
 	await test_loading_bay_access()
 	await test_traffic_rules()
 	game.vehicle.recover(HarborDistrict.SPAWN, PI / 2)

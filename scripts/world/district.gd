@@ -159,7 +159,7 @@ func _build_blocks() -> void:
 	for i in 9:
 		batch.box(Vector3(-89.16, 0.5 + i * 0.48, 116), Vector3(0.04, 0.035, 5.9), Color("9ea8a0"))
 	batch.box(Vector3(-89.5, 5.45, 116), Vector3(0.8, 0.2, 9), TEAL)
-	Geometry.text(self, "HARBORLINE\nD I S P A T C H", Vector3(-89.15, 6.35, 117), 60, 0.009, Color("285554"), -PI / 2)
+	Geometry.text(self, "ROADSHIFT\nD I S P A T C H", Vector3(-89.15, 6.35, 117), 60, 0.009, Color("285554"), -PI / 2)
 	for i in 3:
 		_crates(Vector3(-94, 0.2, 130 + i * 2.2))
 	_building(Vector3(-49, 0, 81), Vector3(28, 11, 28), Color("bca58c"), "PORT AUTHORITY", true)

@@ -11,10 +11,10 @@ fi
 mkdir -p "$OUTPUT"
 "$ENGINE" --headless --editor --path "$ROOT" --import --quit
 "$ENGINE" --headless --path "$ROOT" --script res://tools/make_pack.gd
-install -m 755 "$ENGINE" "$OUTPUT/Harborline"
+install -m 755 "$ENGINE" "$OUTPUT/RoadShift"
 install -m 644 "$ROOT/LICENSE" "$OUTPUT/LICENSE.game.txt"
 install -m 644 "$ROOT/THIRD_PARTY_NOTICES.md" "$OUTPUT/THIRD_PARTY_NOTICES.md"
 install -m 644 "$ROOT/third_party/godot/LICENSE.txt" "$OUTPUT/LICENSE.godot.txt"
 install -m 644 "$ROOT/third_party/godot/COPYRIGHT.txt" "$OUTPUT/COPYRIGHT.godot.txt"
 install -m 644 "$ROOT/docs/PLAYING.md" "$OUTPUT/PLAYING.md"
-printf '\nPlayable native Linux bundle:\n  %s/Harborline\n' "$OUTPUT"
+printf '\nPlayable native Linux development bundle:\n  %s/RoadShift\n' "$OUTPUT"

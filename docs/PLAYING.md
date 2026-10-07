@@ -1,9 +1,9 @@
-# Astra 3D Car Game V2 — quick start
+# RoadShift — quick start
 
-Run **Astra-3D-Car-Game-V2.exe** on Windows or
-**Astra-3D-Car-Game-V2.x86_64** on Linux. Keep `Astra-3D-Car-Game-V2.pck` beside it.
+Run **RoadShift.exe** on Windows or
+**RoadShift.x86_64** on Linux. Keep `RoadShift.pck` beside it.
 This is a native, offline desktop game set in the Harborline district.
-The older development bundle uses the filenames `Harborline` and `Harborline.pck`.
+The optional Linux development bundle uses `RoadShift` and `RoadShift.pck`.
 
 ## Your first delivery
 
@@ -87,6 +87,6 @@ Linux save directory:
 
 Windows: `%APPDATA%/godot/app_userdata/Harborline Dispatch/`.
 This legacy folder is preserved across the product rename. Uninstalling the game
-does not remove your progress. A save uses format v2 independently of release v0.1.0.
+does not remove your progress. Save format v2 is independent of the release version.
 
 You can exit with **Esc → Save & quit** or close the window.
