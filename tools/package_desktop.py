@@ -72,6 +72,8 @@ def main():
     manifest = export / "BUILD_INFO.json"
     manifest.write_text(json.dumps(info, indent=2) + "\n", encoding="utf-8")
     files.append(manifest)
+    for path in files:
+        path.chmod(0o755 if args.platform == "linux" and path == executable else 0o644)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     folder = BASENAME + ("-Linux-x64" if args.platform == "linux" else "-Windows-x64")
     output = args.output_dir / (folder + (".tar.gz" if args.platform == "linux" else ".zip"))

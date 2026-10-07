@@ -13,6 +13,12 @@ existing tags/releases. The existing project was continued in place.
 | Existing physical driving/input/UI/delivery integration | **64 / 64 PASSED** |
 | Shell syntax for source/development/Linux build scripts | **PASSED** |
 | Installer icon generation from the original SVG | **PASSED** |
+| Python packaging-script compilation and Actionlint workflow validation | **PASSED** |
+| Official template SHA-512 / exact 4.3.stable version | **PASSED** |
+| Linux release-template export, ELF/PCK headers, permissions and archive structure | **PASSED** |
+| Linux release headless startup outside the source directory | **PASSED**, exit 0 |
+| Extracted Linux archive headless startup outside the source directory | **PASSED**, exit 0 |
+| Short Linux release native X11 / OpenGL 3.3 startup on VMware SVGA3D | **PASSED**, exit 0, clean log |
 
 The integration physically drives loaded cargo to Northline Works, unloads it,
 and increases the wallet from **$650 to $956**. It exercises all seven loaded
@@ -25,6 +31,15 @@ regression check verifies the actual engine user-data directory. Personal saves
 and settings are not modified by QA.
 
 ### Desktop release checks
+
+The Linux package contains a genuine stripped x86-64 ELF release runtime and
+adjacent Godot 4.3 PCK, playing guide, provenance manifest and license notices.
+The archive's runtime is executable; data/notices use ordinary read permissions.
+The exported game and separately extracted archive were launched from
+`/tmp/omnirush`, using sandbox saves, with no editor or source-project runtime.
+The native smoke test ran for 60 frames and successfully initialized Mesa 21.2.6 /
+OpenGL 3.3 Compatibility on VMware SVGA3D. It is a startup check, not a complete
+rendered release gameplay or performance benchmark.
 
 The packaging scripts fail on invalid executable/PCK headers, missing data,
 incorrect permissions, failed archive checks or failed native export commands.

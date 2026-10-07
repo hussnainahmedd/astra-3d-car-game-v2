@@ -33,12 +33,13 @@ def main():
     archive = tools / ARCHIVE_NAME
     if not archive.exists():
         partial = archive.with_suffix(".tpz.part")
-        print("Downloading official Godot 4.3 stable templates...", flush=True)
+        print("Downloading/resuming official Godot 4.3 stable templates...", flush=True)
         curl = shutil.which("curl.exe") if os.name == "nt" else shutil.which("curl")
         if not curl:
             raise SystemExit("curl is required to download the official templates")
-        subprocess.run([curl, "--fail", "--location", "--retry", "2", "--silent",
-                        "--show-error", URL, "--output", str(partial)], check=True)
+        subprocess.run([curl, "--fail", "--location", "--retry", "2", "--continue-at", "-",
+                        "--connect-timeout", "30", "--speed-time", "60", "--speed-limit", "1024",
+                        "--silent", "--show-error", URL, "--output", str(partial)], check=True)
         if digest(partial) != SHA512:
             raise SystemExit("Template checksum mismatch; the download was preserved for inspection")
         partial.replace(archive)

@@ -279,6 +279,8 @@ geometry; the rendered run exercises their actual presentation.
 
 - **TESTED:** source import/parsing, physical driving/delivery/payment, progression,
   economy, save migration/recovery and settings in the existing automated suites.
+- **TESTED:** Linux release export, archive extraction, independent headless startup,
+  and a short native OpenGL launch on the Ubuntu/VMware environment (clean logs).
 - Native package validation checks genuine x64 ELF/PE headers, Godot 4.3 PCK data,
   archive structure and Linux executable permissions before packaging.
 - The Windows workflow additionally runs headless portable/installed startup and
