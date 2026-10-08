@@ -7,7 +7,7 @@ Explore a compact harbor district, collect delivery contracts, transport cargo,
 earn rewards, and maintain your van between jobs.
 
 **Current version: v0.1.1 — desktop prerelease.**
-[Download desktop builds](https://github.com/hussnainahmedd/astra-3d-car-game-v2/releases).
+[Download desktop builds](https://github.com/hussnainahmedd/roadshift/releases).
 
 ## Overview
 
@@ -126,7 +126,7 @@ See [architecture details](docs/ARCHITECTURE.md).
 
 ## Installation
 
-Download the packages from [GitHub Releases](https://github.com/hussnainahmedd/astra-3d-car-game-v2/releases).
+Download the packages from [GitHub Releases](https://github.com/hussnainahmedd/roadshift/releases).
 Each portable package includes its runtime, game data, playing guide and license
 notices. Players do not need development tools or a separate engine installation.
 Normal graphics/audio drivers and **OpenGL 3.3** support are required.
@@ -257,7 +257,7 @@ or performance guarantees.
 ## Releases
 
 Packaged desktop builds, `SHA256SUMS.txt` and platform validation records are
-distributed through [GitHub Releases](https://github.com/hussnainahmedd/astra-3d-car-game-v2/releases).
+distributed through [GitHub Releases](https://github.com/hussnainahmedd/roadshift/releases).
 **v0.1.1** introduces the RoadShift product identity. Earlier releases remain
 archived for existing downloads. Binaries are not stored in normal Git history.
 
